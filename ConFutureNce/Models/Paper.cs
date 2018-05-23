@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ConFutureNce.Models
 {
@@ -14,8 +16,9 @@ namespace ConFutureNce.Models
         public string Abstract { get; set; }
         public string OrgName { get; set; }
         public DateTime SubmissionDate { get; set; }
-        public string[] KeyWords { get; set; }
         public enum ProcessStatus { Submitted, UnderReview, Reviewed, Qualified, Unqualified};
+
+        public virtual ICollection<PaperKeyword> PaperKeywords { get; set; }
         public virtual Language Language { get; set; }
         public virtual Review Review { get; set; }
         public virtual Payment Payment { get; set; }

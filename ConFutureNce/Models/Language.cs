@@ -7,7 +7,7 @@ namespace ConFutureNce.Models
 {
     public class Language
     {
-        public int LaunguageID { get; set; }
+        public int LanguageID { get; set; }
         public string LanguageName { get; set; }
     }
 }

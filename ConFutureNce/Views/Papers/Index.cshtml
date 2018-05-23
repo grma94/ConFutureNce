@@ -1,0 +1,65 @@
+﻿@model IEnumerable<ConFutureNce.Models.Paper>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.TitleENG)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TitleORG)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Authors)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Abstract)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OrgName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SubmissionDate)
+                </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TitleENG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TitleORG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Authors)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Abstract)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrgName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SubmissionDate)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.PaperID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.PaperID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.PaperID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 
 namespace ConFutureNce.Models
 {
-    public abstract class UserType : ApplicationUser
+    public abstract class UserType
     {
         public int UserTypeID { get; set; }
+
+        public virtual ApplicationUser ApplicationUser { get; set; }
     }
 }
