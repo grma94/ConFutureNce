@@ -200,6 +200,8 @@ namespace ConFutureNce.Migrations
                 {
                     OrgName = table.Column<string>(nullable: true),
                     ScTitle = table.Column<string>(nullable: true),
+                    EmployeePosition = table.Column<string>(nullable: true),
+                    ProgrammeCommitteeMember_EmployeePosition = table.Column<string>(nullable: true),
                     Language1Id = table.Column<int>(nullable: true),
                     Language2Id = table.Column<int>(nullable: true),
                     Language3Id = table.Column<int>(nullable: true),

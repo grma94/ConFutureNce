@@ -24,6 +24,10 @@ namespace ConFutureNce.Models
 
         public DbSet<Reviewer> Reviewer { get; set; }
 
+        public DbSet<ProgrammeCommitteeMember> ProgrammeCommitteeMember { get; set; }
+
+        public DbSet<Organizer> Organizer { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

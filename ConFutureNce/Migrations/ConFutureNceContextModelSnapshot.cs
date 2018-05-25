@@ -389,6 +389,29 @@ namespace ConFutureNce.Migrations
                     b.HasDiscriminator().HasValue("Author");
                 });
 
+            modelBuilder.Entity("ConFutureNce.Models.Organizer", b =>
+                {
+                    b.HasBaseType("ConFutureNce.Models.UserType");
+
+                    b.Property<string>("EmployeePosition");
+
+                    b.ToTable("Organizer");
+
+                    b.HasDiscriminator().HasValue("Organizer");
+                });
+
+            modelBuilder.Entity("ConFutureNce.Models.ProgrammeCommitteeMember", b =>
+                {
+                    b.HasBaseType("ConFutureNce.Models.UserType");
+
+                    b.Property<string>("EmployeePosition")
+                        .HasColumnName("ProgrammeCommitteeMember_EmployeePosition");
+
+                    b.ToTable("ProgrammeCommitteeMember");
+
+                    b.HasDiscriminator().HasValue("ProgrammeCommitteeMember");
+                });
+
             modelBuilder.Entity("ConFutureNce.Models.Reviewer", b =>
                 {
                     b.HasBaseType("ConFutureNce.Models.UserType");
