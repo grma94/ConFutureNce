@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ConFutureNce.Models;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace ConFutureNce.Controllers
 {
@@ -59,10 +61,15 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,PaperFile,LanguageId,AuthorId")] Paper paper)
+        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId,AuthorId")] Paper paper, IFormFile file)
         {
             if (ModelState.IsValid)
-            { 
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.CopyToAsync(memoryStream);
+                    paper.PaperFile = memoryStream.ToArray();
+                }
                 paper.SubmissionDate = DateTime.Now;
                 _context.Add(paper);
                 await _context.SaveChangesAsync();
