@@ -21,7 +21,8 @@ namespace ConFutureNce.Controllers
         // GET: Payments
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Payment.ToListAsync());
+            var conFutureNceContext = _context.Payment.Include(p => p.Paper);
+            return View(await conFutureNceContext.ToListAsync());
         }
 
         // GET: Payments/Details/5
@@ -33,7 +34,8 @@ namespace ConFutureNce.Controllers
             }
 
             var payment = await _context.Payment
-                .SingleOrDefaultAsync(m => m.PaymentID == id);
+                .Include(p => p.Paper)
+                .SingleOrDefaultAsync(m => m.PaymentId == id);
             if (payment == null)
             {
                 return NotFound();
@@ -45,6 +47,7 @@ namespace ConFutureNce.Controllers
         // GET: Payments/Create
         public IActionResult Create()
         {
+            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId");
             return View();
         }
 
@@ -53,7 +56,7 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaymentID,IsDone")] Payment payment)
+        public async Task<IActionResult> Create([Bind("PaymentId,IsDone,PaperId")] Payment payment)
         {
             if (ModelState.IsValid)
             {
@@ -61,6 +64,7 @@ namespace ConFutureNce.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId", payment.PaperId);
             return View(payment);
         }
 
@@ -72,11 +76,12 @@ namespace ConFutureNce.Controllers
                 return NotFound();
             }
 
-            var payment = await _context.Payment.SingleOrDefaultAsync(m => m.PaymentID == id);
+            var payment = await _context.Payment.SingleOrDefaultAsync(m => m.PaymentId == id);
             if (payment == null)
             {
                 return NotFound();
             }
+            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId", payment.PaperId);
             return View(payment);
         }
 
@@ -85,9 +90,9 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PaymentID,IsDone")] Payment payment)
+        public async Task<IActionResult> Edit(int id, [Bind("PaymentId,IsDone,PaperId")] Payment payment)
         {
-            if (id != payment.PaymentID)
+            if (id != payment.PaymentId)
             {
                 return NotFound();
             }
@@ -101,7 +106,7 @@ namespace ConFutureNce.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PaymentExists(payment.PaymentID))
+                    if (!PaymentExists(payment.PaymentId))
                     {
                         return NotFound();
                     }
@@ -112,6 +117,7 @@ namespace ConFutureNce.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId", payment.PaperId);
             return View(payment);
         }
 
@@ -124,7 +130,8 @@ namespace ConFutureNce.Controllers
             }
 
             var payment = await _context.Payment
-                .SingleOrDefaultAsync(m => m.PaymentID == id);
+                .Include(p => p.Paper)
+                .SingleOrDefaultAsync(m => m.PaymentId == id);
             if (payment == null)
             {
                 return NotFound();
@@ -138,7 +145,7 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var payment = await _context.Payment.SingleOrDefaultAsync(m => m.PaymentID == id);
+            var payment = await _context.Payment.SingleOrDefaultAsync(m => m.PaymentId == id);
             _context.Payment.Remove(payment);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -146,7 +153,7 @@ namespace ConFutureNce.Controllers
 
         private bool PaymentExists(int id)
         {
-            return _context.Payment.Any(e => e.PaymentID == id);
+            return _context.Payment.Any(e => e.PaymentId == id);
         }
     }
 }

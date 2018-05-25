@@ -36,6 +36,9 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Date)
                 </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Paper)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -67,9 +70,12 @@
                 @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ReviewID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ReviewID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ReviewID">Delete</a>
+                @Html.DisplayFor(modelItem => item.Paper.PaperId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ReviewId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ReviewId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ReviewId">Delete</a>
             </td>
         </tr>
 }

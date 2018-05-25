@@ -21,7 +21,8 @@ namespace ConFutureNce.Controllers
         // GET: Papers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Paper.ToListAsync());
+            var conFutureNceContext = _context.Paper.Include(p => p.Author).Include(p => p.Language).Include(p => p.Reviewer);
+            return View(await conFutureNceContext.ToListAsync());
         }
 
         // GET: Papers/Details/5
@@ -33,7 +34,10 @@ namespace ConFutureNce.Controllers
             }
 
             var paper = await _context.Paper
-                .SingleOrDefaultAsync(m => m.PaperID == id);
+                .Include(p => p.Author)
+                .Include(p => p.Language)
+                .Include(p => p.Reviewer)
+                .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
                 return NotFound();
@@ -45,6 +49,9 @@ namespace ConFutureNce.Controllers
         // GET: Papers/Create
         public IActionResult Create()
         {
+            ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator");
+            ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId");
+            ViewData["ReviewerId"] = new SelectList(_context.Set<Reviewer>(), "UserTypeId", "Discriminator");
             return View();
         }
 
@@ -53,7 +60,7 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaperID,TitleENG,TitleORG,Authors,Abstract,OrgName,SubmissionDate")] Paper paper)
+        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,SubmissionDate,PaperFile,LanguageId,AuthorId,ReviewerId")] Paper paper)
         {
             if (ModelState.IsValid)
             {
@@ -61,6 +68,9 @@ namespace ConFutureNce.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator", paper.AuthorId);
+            ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId", paper.LanguageId);
+            ViewData["ReviewerId"] = new SelectList(_context.Set<Reviewer>(), "UserTypeId", "Discriminator", paper.ReviewerId);
             return View(paper);
         }
 
@@ -72,11 +82,14 @@ namespace ConFutureNce.Controllers
                 return NotFound();
             }
 
-            var paper = await _context.Paper.SingleOrDefaultAsync(m => m.PaperID == id);
+            var paper = await _context.Paper.SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
                 return NotFound();
             }
+            ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator", paper.AuthorId);
+            ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId", paper.LanguageId);
+            ViewData["ReviewerId"] = new SelectList(_context.Set<Reviewer>(), "UserTypeId", "Discriminator", paper.ReviewerId);
             return View(paper);
         }
 
@@ -85,9 +98,9 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PaperID,TitleENG,TitleORG,Authors,Abstract,OrgName,SubmissionDate")] Paper paper)
+        public async Task<IActionResult> Edit(int id, [Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,SubmissionDate,PaperFile,LanguageId,AuthorId,ReviewerId")] Paper paper)
         {
-            if (id != paper.PaperID)
+            if (id != paper.PaperId)
             {
                 return NotFound();
             }
@@ -101,7 +114,7 @@ namespace ConFutureNce.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PaperExists(paper.PaperID))
+                    if (!PaperExists(paper.PaperId))
                     {
                         return NotFound();
                     }
@@ -112,6 +125,9 @@ namespace ConFutureNce.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator", paper.AuthorId);
+            ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId", paper.LanguageId);
+            ViewData["ReviewerId"] = new SelectList(_context.Set<Reviewer>(), "UserTypeId", "Discriminator", paper.ReviewerId);
             return View(paper);
         }
 
@@ -124,7 +140,10 @@ namespace ConFutureNce.Controllers
             }
 
             var paper = await _context.Paper
-                .SingleOrDefaultAsync(m => m.PaperID == id);
+                .Include(p => p.Author)
+                .Include(p => p.Language)
+                .Include(p => p.Reviewer)
+                .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
                 return NotFound();
@@ -138,7 +157,7 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var paper = await _context.Paper.SingleOrDefaultAsync(m => m.PaperID == id);
+            var paper = await _context.Paper.SingleOrDefaultAsync(m => m.PaperId == id);
             _context.Paper.Remove(paper);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -146,7 +165,7 @@ namespace ConFutureNce.Controllers
 
         private bool PaperExists(int id)
         {
-            return _context.Paper.Any(e => e.PaperID == id);
+            return _context.Paper.Any(e => e.PaperId == id);
         }
     }
 }

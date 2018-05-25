@@ -12,7 +12,7 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="PaperID" />
+            <input type="hidden" asp-for="PaperId" />
             <div class="form-group">
                 <label asp-for="TitleENG" class="control-label"></label>
                 <input asp-for="TitleENG" class="form-control" />
@@ -42,6 +42,26 @@
                 <label asp-for="SubmissionDate" class="control-label"></label>
                 <input asp-for="SubmissionDate" class="form-control" />
                 <span asp-validation-for="SubmissionDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaperFile" class="control-label"></label>
+                <input asp-for="PaperFile" class="form-control" />
+                <span asp-validation-for="PaperFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LanguageId" class="control-label"></label>
+                <select asp-for="LanguageId" class="form-control" asp-items="ViewBag.LanguageId"></select>
+                <span asp-validation-for="LanguageId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuthorId" class="control-label"></label>
+                <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId"></select>
+                <span asp-validation-for="AuthorId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReviewerId" class="control-label"></label>
+                <select asp-for="ReviewerId" class="form-control" asp-items="ViewBag.ReviewerId"></select>
+                <span asp-validation-for="ReviewerId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />

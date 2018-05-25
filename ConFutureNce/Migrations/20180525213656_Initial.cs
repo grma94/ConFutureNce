@@ -28,12 +28,12 @@ namespace ConFutureNce.Migrations
                 columns: table => new
                 {
                     Name = table.Column<string>(nullable: false),
-                    AssignDeadline = table.Column<DateTime>(nullable: false),
-                    EndDate = table.Column<DateTime>(nullable: false),
-                    PaperDeadline = table.Column<DateTime>(nullable: false),
-                    ReviewDeadline = table.Column<DateTime>(nullable: false),
-                    SelectionDeadline = table.Column<DateTime>(nullable: false),
-                    StartDate = table.Column<DateTime>(nullable: false)
+                    AssignDeadline = table.Column<DateTime>(nullable: true),
+                    EndDate = table.Column<DateTime>(nullable: true),
+                    PaperDeadline = table.Column<DateTime>(nullable: true),
+                    ReviewDeadline = table.Column<DateTime>(nullable: true),
+                    SelectionDeadline = table.Column<DateTime>(nullable: true),
+                    StartDate = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,51 +41,16 @@ namespace ConFutureNce.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Invoice",
-                columns: table => new
-                {
-                    InvoiceID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    BillingAddress = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(nullable: true),
-                    TaxNumber = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Invoice", x => x.InvoiceID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Language",
                 columns: table => new
                 {
-                    LanguageID = table.Column<int>(nullable: false)
+                    LanguageId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     LanguageName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Language", x => x.LanguageID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Review",
-                columns: table => new
-                {
-                    ReviewID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Achievements = table.Column<string>(nullable: true),
-                    Date = table.Column<DateTime>(nullable: false),
-                    GeneralComments = table.Column<string>(nullable: true),
-                    Grade = table.Column<string>(nullable: true),
-                    NotMentioned = table.Column<string>(nullable: true),
-                    Problems = table.Column<string>(nullable: true),
-                    Solution = table.Column<string>(nullable: true),
-                    WhyProblems = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Review", x => x.ReviewID);
+                    table.PrimaryKey("PK_Language", x => x.LanguageId);
                 });
 
             migrationBuilder.CreateTable(
@@ -117,18 +82,19 @@ namespace ConFutureNce.Migrations
                     AccessFailedCount = table.Column<int>(nullable: false),
                     Address = table.Column<string>(nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true),
+                    ConferenceName = table.Column<string>(nullable: false),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(nullable: false),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    Name = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: false),
                     NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
                     PasswordHash = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(nullable: false),
                     SecurityStamp = table.Column<string>(nullable: true),
-                    Surname = table.Column<string>(nullable: true),
+                    Surname = table.Column<string>(nullable: false),
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     UserName = table.Column<string>(maxLength: 256, nullable: true)
                 },
@@ -136,31 +102,11 @@ namespace ConFutureNce.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Conference_Name",
-                        column: x => x.Name,
+                        name: "FK_AspNetUsers_Conference_ConferenceName",
+                        column: x => x.ConferenceName,
                         principalTable: "Conference",
                         principalColumn: "Name",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Payment",
-                columns: table => new
-                {
-                    PaymentID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    InvoiceID = table.Column<int>(nullable: true),
-                    IsDone = table.Column<bool>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payment", x => x.PaymentID);
-                    table.ForeignKey(
-                        name: "FK_Payment_Invoice_InvoiceID",
-                        column: x => x.InvoiceID,
-                        principalTable: "Invoice",
-                        principalColumn: "InvoiceID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -254,95 +200,82 @@ namespace ConFutureNce.Migrations
                 {
                     OrgName = table.Column<string>(nullable: true),
                     ScTitle = table.Column<string>(nullable: true),
-                    Language1LanguageID = table.Column<int>(nullable: true),
-                    Language2LanguageID = table.Column<int>(nullable: true),
-                    Language3LanguageID = table.Column<int>(nullable: true),
+                    Language1Id = table.Column<int>(nullable: true),
+                    Language2Id = table.Column<int>(nullable: true),
+                    Language3Id = table.Column<int>(nullable: true),
                     Reviewer_OrgName = table.Column<string>(nullable: true),
                     Reviewer_ScTitle = table.Column<string>(nullable: true),
-                    UserTypeID = table.Column<int>(nullable: false)
+                    UserTypeId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    ApplicationUserId = table.Column<string>(nullable: true),
+                    ApplicationUserId = table.Column<string>(nullable: false),
                     Discriminator = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserType", x => x.UserTypeID);
+                    table.PrimaryKey("PK_UserType", x => x.UserTypeId);
                     table.ForeignKey(
-                        name: "FK_UserType_Language_Language1LanguageID",
-                        column: x => x.Language1LanguageID,
+                        name: "FK_UserType_Language_Language1Id",
+                        column: x => x.Language1Id,
                         principalTable: "Language",
-                        principalColumn: "LanguageID",
+                        principalColumn: "LanguageId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_UserType_Language_Language2LanguageID",
-                        column: x => x.Language2LanguageID,
+                        name: "FK_UserType_Language_Language2Id",
+                        column: x => x.Language2Id,
                         principalTable: "Language",
-                        principalColumn: "LanguageID",
+                        principalColumn: "LanguageId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_UserType_Language_Language3LanguageID",
-                        column: x => x.Language3LanguageID,
+                        name: "FK_UserType_Language_Language3Id",
+                        column: x => x.Language3Id,
                         principalTable: "Language",
-                        principalColumn: "LanguageID",
+                        principalColumn: "LanguageId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_UserType_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Paper",
                 columns: table => new
                 {
-                    PaperID = table.Column<int>(nullable: false)
+                    PaperId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Abstract = table.Column<string>(nullable: true),
-                    AuthorUserTypeID = table.Column<int>(nullable: true),
+                    AuthorId = table.Column<int>(nullable: false),
                     Authors = table.Column<string>(nullable: true),
-                    LanguageID = table.Column<int>(nullable: true),
+                    LanguageId = table.Column<int>(nullable: false),
                     OrgName = table.Column<string>(nullable: true),
-                    PaymentID = table.Column<int>(nullable: true),
-                    ReviewID = table.Column<int>(nullable: true),
-                    ReviewerUserTypeID = table.Column<int>(nullable: true),
+                    PaperFile = table.Column<byte[]>(nullable: true),
+                    ReviewerId = table.Column<int>(nullable: true),
                     SubmissionDate = table.Column<DateTime>(nullable: false),
                     TitleENG = table.Column<string>(nullable: true),
                     TitleORG = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Paper", x => x.PaperID);
+                    table.PrimaryKey("PK_Paper", x => x.PaperId);
                     table.ForeignKey(
-                        name: "FK_Paper_UserType_AuthorUserTypeID",
-                        column: x => x.AuthorUserTypeID,
+                        name: "FK_Paper_UserType_AuthorId",
+                        column: x => x.AuthorId,
                         principalTable: "UserType",
-                        principalColumn: "UserTypeID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserTypeId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Paper_Language_LanguageID",
-                        column: x => x.LanguageID,
+                        name: "FK_Paper_Language_LanguageId",
+                        column: x => x.LanguageId,
                         principalTable: "Language",
-                        principalColumn: "LanguageID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "LanguageId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Paper_Payment_PaymentID",
-                        column: x => x.PaymentID,
-                        principalTable: "Payment",
-                        principalColumn: "PaymentID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Paper_Review_ReviewID",
-                        column: x => x.ReviewID,
-                        principalTable: "Review",
-                        principalColumn: "ReviewID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Paper_UserType_ReviewerUserTypeID",
-                        column: x => x.ReviewerUserTypeID,
+                        name: "FK_Paper_UserType_ReviewerId",
+                        column: x => x.ReviewerId,
                         principalTable: "UserType",
-                        principalColumn: "UserTypeID",
+                        principalColumn: "UserTypeId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -351,17 +284,86 @@ namespace ConFutureNce.Migrations
                 columns: table => new
                 {
                     KeyWord = table.Column<string>(nullable: false),
-                    PaperID = table.Column<int>(nullable: true)
+                    PaperId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PaperKeyword", x => x.KeyWord);
+                    table.PrimaryKey("PK_PaperKeyword", x => new { x.KeyWord, x.PaperId });
                     table.ForeignKey(
-                        name: "FK_PaperKeyword_Paper_PaperID",
-                        column: x => x.PaperID,
+                        name: "FK_PaperKeyword_Paper_PaperId",
+                        column: x => x.PaperId,
                         principalTable: "Paper",
-                        principalColumn: "PaperID",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "PaperId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payment",
+                columns: table => new
+                {
+                    PaymentId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    IsDone = table.Column<bool>(nullable: false),
+                    PaperId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payment", x => x.PaymentId);
+                    table.ForeignKey(
+                        name: "FK_Payment_Paper_PaperId",
+                        column: x => x.PaperId,
+                        principalTable: "Paper",
+                        principalColumn: "PaperId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Review",
+                columns: table => new
+                {
+                    ReviewId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Achievements = table.Column<string>(nullable: false),
+                    Date = table.Column<DateTime>(nullable: false),
+                    GeneralComments = table.Column<string>(nullable: true),
+                    Grade = table.Column<string>(nullable: false),
+                    NotMentioned = table.Column<string>(nullable: false),
+                    PaperId = table.Column<int>(nullable: false),
+                    Problems = table.Column<string>(nullable: false),
+                    Solution = table.Column<string>(nullable: false),
+                    WhyProblems = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Review", x => x.ReviewId);
+                    table.ForeignKey(
+                        name: "FK_Review_Paper_PaperId",
+                        column: x => x.PaperId,
+                        principalTable: "Paper",
+                        principalColumn: "PaperId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Invoice",
+                columns: table => new
+                {
+                    InvoiceId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    BillingAddress = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    PaymentId = table.Column<int>(nullable: false),
+                    TaxNumber = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Invoice", x => x.InvoiceId);
+                    table.ForeignKey(
+                        name: "FK_Invoice_Payment_PaymentId",
+                        column: x => x.PaymentId,
+                        principalTable: "Payment",
+                        principalColumn: "PaymentId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -392,9 +394,9 @@ namespace ConFutureNce.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_Name",
+                name: "IX_AspNetUsers_ConferenceName",
                 table: "AspNetUsers",
-                column: "Name");
+                column: "ConferenceName");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -409,60 +411,57 @@ namespace ConFutureNce.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Paper_AuthorUserTypeID",
-                table: "Paper",
-                column: "AuthorUserTypeID");
+                name: "IX_Invoice_PaymentId",
+                table: "Invoice",
+                column: "PaymentId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Paper_LanguageID",
+                name: "IX_Paper_AuthorId",
                 table: "Paper",
-                column: "LanguageID");
+                column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Paper_PaymentID",
+                name: "IX_Paper_LanguageId",
                 table: "Paper",
-                column: "PaymentID",
-                unique: true,
-                filter: "[PaymentID] IS NOT NULL");
+                column: "LanguageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Paper_ReviewID",
+                name: "IX_Paper_ReviewerId",
                 table: "Paper",
-                column: "ReviewID",
-                unique: true,
-                filter: "[ReviewID] IS NOT NULL");
+                column: "ReviewerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Paper_ReviewerUserTypeID",
-                table: "Paper",
-                column: "ReviewerUserTypeID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PaperKeyword_PaperID",
+                name: "IX_PaperKeyword_PaperId",
                 table: "PaperKeyword",
-                column: "PaperID");
+                column: "PaperId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payment_InvoiceID",
+                name: "IX_Payment_PaperId",
                 table: "Payment",
-                column: "InvoiceID",
-                unique: true,
-                filter: "[InvoiceID] IS NOT NULL");
+                column: "PaperId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserType_Language1LanguageID",
-                table: "UserType",
-                column: "Language1LanguageID");
+                name: "IX_Review_PaperId",
+                table: "Review",
+                column: "PaperId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserType_Language2LanguageID",
+                name: "IX_UserType_Language1Id",
                 table: "UserType",
-                column: "Language2LanguageID");
+                column: "Language1Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserType_Language3LanguageID",
+                name: "IX_UserType_Language2Id",
                 table: "UserType",
-                column: "Language3LanguageID");
+                column: "Language2Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserType_Language3Id",
+                table: "UserType",
+                column: "Language3Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserType_ApplicationUserId",
@@ -488,10 +487,19 @@ namespace ConFutureNce.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Invoice");
+
+            migrationBuilder.DropTable(
                 name: "PaperKeyword");
 
             migrationBuilder.DropTable(
+                name: "Review");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Payment");
 
             migrationBuilder.DropTable(
                 name: "Paper");
@@ -500,19 +508,10 @@ namespace ConFutureNce.Migrations
                 name: "UserType");
 
             migrationBuilder.DropTable(
-                name: "Payment");
-
-            migrationBuilder.DropTable(
-                name: "Review");
-
-            migrationBuilder.DropTable(
                 name: "Language");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Invoice");
 
             migrationBuilder.DropTable(
                 name: "Conference");

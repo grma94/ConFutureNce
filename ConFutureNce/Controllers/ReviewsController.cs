@@ -21,7 +21,8 @@ namespace ConFutureNce.Controllers
         // GET: Reviews
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Review.ToListAsync());
+            var conFutureNceContext = _context.Review.Include(r => r.Paper);
+            return View(await conFutureNceContext.ToListAsync());
         }
 
         // GET: Reviews/Details/5
@@ -33,7 +34,8 @@ namespace ConFutureNce.Controllers
             }
 
             var review = await _context.Review
-                .SingleOrDefaultAsync(m => m.ReviewID == id);
+                .Include(r => r.Paper)
+                .SingleOrDefaultAsync(m => m.ReviewId == id);
             if (review == null)
             {
                 return NotFound();
@@ -45,6 +47,7 @@ namespace ConFutureNce.Controllers
         // GET: Reviews/Create
         public IActionResult Create()
         {
+            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId");
             return View();
         }
 
@@ -53,7 +56,7 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ReviewID,Problems,WhyProblems,Solution,Achievements,NotMentioned,Grade,GeneralComments,Date")] Review review)
+        public async Task<IActionResult> Create([Bind("ReviewId,Problems,WhyProblems,Solution,Achievements,NotMentioned,Grade,GeneralComments,Date,PaperId")] Review review)
         {
             if (ModelState.IsValid)
             {
@@ -61,6 +64,7 @@ namespace ConFutureNce.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId", review.PaperId);
             return View(review);
         }
 
@@ -72,11 +76,12 @@ namespace ConFutureNce.Controllers
                 return NotFound();
             }
 
-            var review = await _context.Review.SingleOrDefaultAsync(m => m.ReviewID == id);
+            var review = await _context.Review.SingleOrDefaultAsync(m => m.ReviewId == id);
             if (review == null)
             {
                 return NotFound();
             }
+            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId", review.PaperId);
             return View(review);
         }
 
@@ -85,9 +90,9 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ReviewID,Problems,WhyProblems,Solution,Achievements,NotMentioned,Grade,GeneralComments,Date")] Review review)
+        public async Task<IActionResult> Edit(int id, [Bind("ReviewId,Problems,WhyProblems,Solution,Achievements,NotMentioned,Grade,GeneralComments,Date,PaperId")] Review review)
         {
-            if (id != review.ReviewID)
+            if (id != review.ReviewId)
             {
                 return NotFound();
             }
@@ -101,7 +106,7 @@ namespace ConFutureNce.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ReviewExists(review.ReviewID))
+                    if (!ReviewExists(review.ReviewId))
                     {
                         return NotFound();
                     }
@@ -112,6 +117,7 @@ namespace ConFutureNce.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId", review.PaperId);
             return View(review);
         }
 
@@ -124,7 +130,8 @@ namespace ConFutureNce.Controllers
             }
 
             var review = await _context.Review
-                .SingleOrDefaultAsync(m => m.ReviewID == id);
+                .Include(r => r.Paper)
+                .SingleOrDefaultAsync(m => m.ReviewId == id);
             if (review == null)
             {
                 return NotFound();
@@ -138,7 +145,7 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var review = await _context.Review.SingleOrDefaultAsync(m => m.ReviewID == id);
+            var review = await _context.Review.SingleOrDefaultAsync(m => m.ReviewId == id);
             _context.Review.Remove(review);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -146,7 +153,7 @@ namespace ConFutureNce.Controllers
 
         private bool ReviewExists(int id)
         {
-            return _context.Review.Any(e => e.ReviewID == id);
+            return _context.Review.Any(e => e.ReviewId == id);
         }
     }
 }

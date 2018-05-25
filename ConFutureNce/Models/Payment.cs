@@ -9,10 +9,11 @@ namespace ConFutureNce.Models
 {
     public class Payment
     {
-        public int PaymentID { get; set; }
+        public int PaymentId { get; set; }
         public bool IsDone { get; set; }
+        public int PaperId { get; set; }
 
-        public virtual Paper Paper { get; set; }
-        public virtual Invoice Invoice { get; set; }
+        public Paper Paper { get; set; }
+        public Invoice Invoice { get; set; }
     }
 }

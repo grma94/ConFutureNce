@@ -43,6 +43,23 @@
                 <span asp-validation-for="SubmissionDate" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="PaperFile" class="control-label"></label>
+                <input asp-for="PaperFile" class="form-control" />
+                <span asp-validation-for="PaperFile" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LanguageId" class="control-label"></label>
+                <select asp-for="LanguageId" class ="form-control" asp-items="ViewBag.LanguageId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuthorId" class="control-label"></label>
+                <select asp-for="AuthorId" class ="form-control" asp-items="ViewBag.AuthorId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReviewerId" class="control-label"></label>
+                <select asp-for="ReviewerId" class ="form-control" asp-items="ViewBag.ReviewerId"></select>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
             </div>
         </form>

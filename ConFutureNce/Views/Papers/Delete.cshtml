@@ -47,10 +47,34 @@
         <dd>
             @Html.DisplayFor(model => model.SubmissionDate)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PaperFile)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PaperFile)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Author)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Author.Discriminator)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Language)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Language.LanguageId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Reviewer)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Reviewer.Discriminator)
+        </dd>
     </dl>
     
     <form asp-action="Delete">
-        <input type="hidden" asp-for="PaperID" />
+        <input type="hidden" asp-for="PaperId" />
         <input type="submit" value="Delete" class="btn btn-default" /> |
         <a asp-action="Index">Back to List</a>
     </form>

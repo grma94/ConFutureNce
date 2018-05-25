@@ -9,10 +9,10 @@ namespace ConFutureNce.Models
 {
     public class PaperKeyword
     {
-        [Key, Column(Order = 0)]
         public string KeyWord { get; set; }
-        [Key, Column(Order = 1)]
-        public virtual Paper Paper { get; set; }
+        public int PaperId { get; set; }
+
+        public Paper Paper { get; set; }
     
     }
 }

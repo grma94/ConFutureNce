@@ -9,7 +9,7 @@ namespace ConFutureNce.Models
 {
     public class Paper
     {
-        public int PaperID { get; set; }
+        public int PaperId { get; set; }
         public string TitleENG { get; set; }
         public string TitleORG { get; set; }
         public string Authors { get; set; }
@@ -17,12 +17,19 @@ namespace ConFutureNce.Models
         public string OrgName { get; set; }
         public DateTime SubmissionDate { get; set; }
         public enum ProcessStatus { Submitted, UnderReview, Reviewed, Qualified, Unqualified};
+        public byte[] PaperFile { get; set; }
+        public int LanguageId { get; set; }
+        public int AuthorId { get; set; }
+        public int? ReviewerId { get; set; }
 
-        public virtual ICollection<PaperKeyword> PaperKeywords { get; set; }
-        public virtual Language Language { get; set; }
-        public virtual Review Review { get; set; }
-        public virtual Payment Payment { get; set; }
-        public virtual Author Author { get; set; }
-        public virtual Reviewer Reviewer { get; set; }
+        public ICollection<PaperKeyword> PaperKeywords { get; set; }
+        [ForeignKey("LanguageId")]
+        public Language Language { get; set; }
+        public Review Review { get; set; }
+        public Payment Payment { get; set; }
+        [ForeignKey("AuthorId")]
+        public Author Author { get; set; }
+        [ForeignKey("ReviewerId")]
+        public Reviewer Reviewer { get; set; }
     }
 }

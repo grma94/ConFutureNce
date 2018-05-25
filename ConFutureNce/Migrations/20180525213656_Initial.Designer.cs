@@ -12,7 +12,7 @@ using System;
 namespace ConFutureNce.Migrations
 {
     [DbContext(typeof(ConFutureNceContext))]
-    [Migration("20180523171218_Initial")]
+    [Migration("20180525213656_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,9 @@ namespace ConFutureNce.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
+                    b.Property<string>("ConferenceName")
+                        .IsRequired();
+
                     b.Property<string>("Email")
                         .HasMaxLength(256);
 
@@ -43,7 +46,8 @@ namespace ConFutureNce.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256);
@@ -59,7 +63,8 @@ namespace ConFutureNce.Migrations
 
                     b.Property<string>("SecurityStamp");
 
-                    b.Property<string>("Surname");
+                    b.Property<string>("Surname")
+                        .IsRequired();
 
                     b.Property<bool>("TwoFactorEnabled");
 
@@ -68,7 +73,7 @@ namespace ConFutureNce.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("ConferenceName");
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -86,17 +91,17 @@ namespace ConFutureNce.Migrations
                     b.Property<string>("Name")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("AssignDeadline");
+                    b.Property<DateTime?>("AssignDeadline");
 
-                    b.Property<DateTime>("EndDate");
+                    b.Property<DateTime?>("EndDate");
 
-                    b.Property<DateTime>("PaperDeadline");
+                    b.Property<DateTime?>("PaperDeadline");
 
-                    b.Property<DateTime>("ReviewDeadline");
+                    b.Property<DateTime?>("ReviewDeadline");
 
-                    b.Property<DateTime>("SelectionDeadline");
+                    b.Property<DateTime?>("SelectionDeadline");
 
-                    b.Property<DateTime>("StartDate");
+                    b.Property<DateTime?>("StartDate");
 
                     b.HasKey("Name");
 
@@ -105,52 +110,58 @@ namespace ConFutureNce.Migrations
 
             modelBuilder.Entity("ConFutureNce.Models.Invoice", b =>
                 {
-                    b.Property<int>("InvoiceID")
+                    b.Property<int>("InvoiceId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("BillingAddress");
+                    b.Property<string>("BillingAddress")
+                        .IsRequired();
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
-                    b.Property<string>("TaxNumber");
+                    b.Property<int>("PaymentId");
 
-                    b.HasKey("InvoiceID");
+                    b.Property<string>("TaxNumber")
+                        .IsRequired();
+
+                    b.HasKey("InvoiceId");
+
+                    b.HasIndex("PaymentId")
+                        .IsUnique();
 
                     b.ToTable("Invoice");
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.Language", b =>
                 {
-                    b.Property<int>("LanguageID")
+                    b.Property<int>("LanguageId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("LanguageName");
 
-                    b.HasKey("LanguageID");
+                    b.HasKey("LanguageId");
 
                     b.ToTable("Language");
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.Paper", b =>
                 {
-                    b.Property<int>("PaperID")
+                    b.Property<int>("PaperId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Abstract");
 
-                    b.Property<int?>("AuthorUserTypeID");
+                    b.Property<int>("AuthorId");
 
                     b.Property<string>("Authors");
 
-                    b.Property<int?>("LanguageID");
+                    b.Property<int>("LanguageId");
 
                     b.Property<string>("OrgName");
 
-                    b.Property<int?>("PaymentID");
+                    b.Property<byte[]>("PaperFile");
 
-                    b.Property<int?>("ReviewID");
-
-                    b.Property<int?>("ReviewerUserTypeID");
+                    b.Property<int?>("ReviewerId");
 
                     b.Property<DateTime>("SubmissionDate");
 
@@ -158,94 +169,96 @@ namespace ConFutureNce.Migrations
 
                     b.Property<string>("TitleORG");
 
-                    b.HasKey("PaperID");
+                    b.HasKey("PaperId");
 
-                    b.HasIndex("AuthorUserTypeID");
+                    b.HasIndex("AuthorId");
 
-                    b.HasIndex("LanguageID");
+                    b.HasIndex("LanguageId");
 
-                    b.HasIndex("PaymentID")
-                        .IsUnique()
-                        .HasFilter("[PaymentID] IS NOT NULL");
-
-                    b.HasIndex("ReviewID")
-                        .IsUnique()
-                        .HasFilter("[ReviewID] IS NOT NULL");
-
-                    b.HasIndex("ReviewerUserTypeID");
+                    b.HasIndex("ReviewerId");
 
                     b.ToTable("Paper");
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.PaperKeyword", b =>
                 {
-                    b.Property<string>("KeyWord")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("KeyWord");
 
-                    b.Property<int?>("PaperID");
+                    b.Property<int>("PaperId");
 
-                    b.HasKey("KeyWord");
+                    b.HasKey("KeyWord", "PaperId");
 
-                    b.HasIndex("PaperID");
+                    b.HasIndex("PaperId");
 
                     b.ToTable("PaperKeyword");
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.Payment", b =>
                 {
-                    b.Property<int>("PaymentID")
+                    b.Property<int>("PaymentId")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("InvoiceID");
 
                     b.Property<bool>("IsDone");
 
-                    b.HasKey("PaymentID");
+                    b.Property<int>("PaperId");
 
-                    b.HasIndex("InvoiceID")
-                        .IsUnique()
-                        .HasFilter("[InvoiceID] IS NOT NULL");
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("PaperId")
+                        .IsUnique();
 
                     b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.Review", b =>
                 {
-                    b.Property<int>("ReviewID")
+                    b.Property<int>("ReviewId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Achievements");
+                    b.Property<string>("Achievements")
+                        .IsRequired();
 
                     b.Property<DateTime>("Date");
 
                     b.Property<string>("GeneralComments");
 
-                    b.Property<string>("Grade");
+                    b.Property<string>("Grade")
+                        .IsRequired();
 
-                    b.Property<string>("NotMentioned");
+                    b.Property<string>("NotMentioned")
+                        .IsRequired();
 
-                    b.Property<string>("Problems");
+                    b.Property<int>("PaperId");
 
-                    b.Property<string>("Solution");
+                    b.Property<string>("Problems")
+                        .IsRequired();
 
-                    b.Property<string>("WhyProblems");
+                    b.Property<string>("Solution")
+                        .IsRequired();
 
-                    b.HasKey("ReviewID");
+                    b.Property<string>("WhyProblems")
+                        .IsRequired();
+
+                    b.HasKey("ReviewId");
+
+                    b.HasIndex("PaperId")
+                        .IsUnique();
 
                     b.ToTable("Review");
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.UserType", b =>
                 {
-                    b.Property<int>("UserTypeID")
+                    b.Property<int>("UserTypeId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("ApplicationUserId");
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired();
 
                     b.Property<string>("Discriminator")
                         .IsRequired();
 
-                    b.HasKey("UserTypeID");
+                    b.HasKey("UserTypeId");
 
                     b.HasIndex("ApplicationUserId");
 
@@ -366,9 +379,11 @@ namespace ConFutureNce.Migrations
                 {
                     b.HasBaseType("ConFutureNce.Models.UserType");
 
-                    b.Property<string>("OrgName");
+                    b.Property<string>("OrgName")
+                        .IsRequired();
 
-                    b.Property<string>("ScTitle");
+                    b.Property<string>("ScTitle")
+                        .IsRequired();
 
                     b.ToTable("Author");
 
@@ -379,11 +394,11 @@ namespace ConFutureNce.Migrations
                 {
                     b.HasBaseType("ConFutureNce.Models.UserType");
 
-                    b.Property<int?>("Language1LanguageID");
+                    b.Property<int>("Language1Id");
 
-                    b.Property<int?>("Language2LanguageID");
+                    b.Property<int?>("Language2Id");
 
-                    b.Property<int?>("Language3LanguageID");
+                    b.Property<int?>("Language3Id");
 
                     b.Property<string>("OrgName")
                         .HasColumnName("Reviewer_OrgName");
@@ -391,11 +406,11 @@ namespace ConFutureNce.Migrations
                     b.Property<string>("ScTitle")
                         .HasColumnName("Reviewer_ScTitle");
 
-                    b.HasIndex("Language1LanguageID");
+                    b.HasIndex("Language1Id");
 
-                    b.HasIndex("Language2LanguageID");
+                    b.HasIndex("Language2Id");
 
-                    b.HasIndex("Language3LanguageID");
+                    b.HasIndex("Language3Id");
 
                     b.ToTable("Reviewer");
 
@@ -406,51 +421,65 @@ namespace ConFutureNce.Migrations
                 {
                     b.HasOne("ConFutureNce.Models.Conference", "Conference")
                         .WithMany("ApplicationUsers")
-                        .HasForeignKey("Name");
+                        .HasForeignKey("ConferenceName")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("ConFutureNce.Models.Invoice", b =>
+                {
+                    b.HasOne("ConFutureNce.Models.Payment", "Payment")
+                        .WithOne("Invoice")
+                        .HasForeignKey("ConFutureNce.Models.Invoice", "PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.Paper", b =>
                 {
                     b.HasOne("ConFutureNce.Models.Author", "Author")
                         .WithMany("Papers")
-                        .HasForeignKey("AuthorUserTypeID");
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ConFutureNce.Models.Language", "Language")
-                        .WithMany()
-                        .HasForeignKey("LanguageID");
-
-                    b.HasOne("ConFutureNce.Models.Payment", "Payment")
-                        .WithOne("Paper")
-                        .HasForeignKey("ConFutureNce.Models.Paper", "PaymentID");
-
-                    b.HasOne("ConFutureNce.Models.Review", "Review")
-                        .WithOne("Paper")
-                        .HasForeignKey("ConFutureNce.Models.Paper", "ReviewID");
+                        .WithMany("Papers")
+                        .HasForeignKey("LanguageId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ConFutureNce.Models.Reviewer", "Reviewer")
                         .WithMany("Papers")
-                        .HasForeignKey("ReviewerUserTypeID");
+                        .HasForeignKey("ReviewerId");
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.PaperKeyword", b =>
                 {
                     b.HasOne("ConFutureNce.Models.Paper", "Paper")
                         .WithMany("PaperKeywords")
-                        .HasForeignKey("PaperID");
+                        .HasForeignKey("PaperId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.Payment", b =>
                 {
-                    b.HasOne("ConFutureNce.Models.Invoice", "Invoice")
+                    b.HasOne("ConFutureNce.Models.Paper", "Paper")
                         .WithOne("Payment")
-                        .HasForeignKey("ConFutureNce.Models.Payment", "InvoiceID");
+                        .HasForeignKey("ConFutureNce.Models.Payment", "PaperId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("ConFutureNce.Models.Review", b =>
+                {
+                    b.HasOne("ConFutureNce.Models.Paper", "Paper")
+                        .WithOne("Review")
+                        .HasForeignKey("ConFutureNce.Models.Review", "PaperId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ConFutureNce.Models.UserType", b =>
                 {
                     b.HasOne("ConFutureNce.Models.ApplicationUser", "ApplicationUser")
                         .WithMany("Users")
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -501,16 +530,19 @@ namespace ConFutureNce.Migrations
             modelBuilder.Entity("ConFutureNce.Models.Reviewer", b =>
                 {
                     b.HasOne("ConFutureNce.Models.Language", "Language1")
-                        .WithMany()
-                        .HasForeignKey("Language1LanguageID");
+                        .WithMany("ReviewersFirst")
+                        .HasForeignKey("Language1Id")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ConFutureNce.Models.Language", "Language2")
-                        .WithMany()
-                        .HasForeignKey("Language2LanguageID");
+                        .WithMany("ReviewersSecond")
+                        .HasForeignKey("Language2Id")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ConFutureNce.Models.Language", "Language3")
-                        .WithMany()
-                        .HasForeignKey("Language3LanguageID");
+                        .WithMany("ReviewersThird")
+                        .HasForeignKey("Language3Id")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 #pragma warning restore 612, 618
         }
