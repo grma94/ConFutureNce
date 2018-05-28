@@ -30,9 +30,6 @@
                 <th>
                     @Html.DisplayNameFor(model => model.SubmissionDate)
                 </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.PaperFile)
-                </th>
             <th>
                 @Html.DisplayNameFor(model => model.Author)
             </th>
@@ -67,16 +64,13 @@
                 @Html.DisplayFor(modelItem => item.SubmissionDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PaperFile)
+                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Email)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Author.Discriminator)
+                @Html.DisplayFor(modelItem => item.Language.LanguageName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Language.LanguageId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Reviewer.Discriminator)
+                @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Name)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.PaperId">Edit</a> |

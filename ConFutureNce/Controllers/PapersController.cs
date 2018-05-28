@@ -51,8 +51,14 @@ namespace ConFutureNce.Controllers
         // GET: Papers/Create
         public IActionResult Create()
         {
-            ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator");
-            ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId");
+            ICollection<Language> languageList = new List<Language>();
+            languageList = (from language in _context.Language select language).ToList();
+            ViewBag.ListofLanguages = languageList;
+            ICollection<Author> authorsList = new List<Author>();
+            authorsList = (from author in _context.Author select author).ToList();
+            ViewBag.ListofAuthors = authorsList;
+            //ViewBag.ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator");
+            //ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId");
             return View();
         }
 

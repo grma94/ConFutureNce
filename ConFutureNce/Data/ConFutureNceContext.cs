@@ -24,6 +24,14 @@ namespace ConFutureNce.Models
 
         public DbSet<Reviewer> Reviewer { get; set; }
 
+        public DbSet<Author> Author { get; set; }
+
+        public DbSet<Language> Language { get; set; }
+
+        public DbSet<ApplicationUser> ApplicationUser { get; set; }
+
+        public DbSet<Conference> Conference { get; set; }
+
         public DbSet<ProgrammeCommitteeMember> ProgrammeCommitteeMember { get; set; }
 
         public DbSet<Organizer> Organizer { get; set; }
@@ -31,7 +39,8 @@ namespace ConFutureNce.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<PaperKeyword>().HasKey(p => new { p.KeyWord, p.PaperId });
+            builder.Entity<PaperKeyword>()
+                .HasKey(p => new { p.KeyWord, p.PaperId });
             /*    builder.Entity<Paper>()
                     .HasOne(p => p.Language).WithMany(l => l.Papers).OnDelete(DeleteBehavior.Restrict);
                 builder.Entity<Language>()
