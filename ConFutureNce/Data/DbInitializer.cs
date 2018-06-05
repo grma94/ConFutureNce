@@ -132,6 +132,16 @@ namespace ConFutureNce.Models
             }
             context.SaveChanges();
 
+            var papers = new Paper[]
+{
+                new Paper{TitleENG="Test1", TitleORG="Teścik1", Abstract="taki tam sobie test enuma", Authors="Marek Granowicz", LanguageId=47, OrgName="PWr", Status=0, AuthorId=context.Author.First().UserTypeId}
+};
+            foreach (Paper p in papers)
+            {
+                context.Paper.Add(p);
+            }
+            context.SaveChanges();
+
 
 
         }

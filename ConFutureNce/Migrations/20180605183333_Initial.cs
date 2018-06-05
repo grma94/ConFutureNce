@@ -247,16 +247,17 @@ namespace ConFutureNce.Migrations
                 {
                     PaperId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Abstract = table.Column<string>(nullable: true),
+                    Abstract = table.Column<string>(nullable: false),
                     AuthorId = table.Column<int>(nullable: false),
-                    Authors = table.Column<string>(nullable: true),
+                    Authors = table.Column<string>(nullable: false),
                     LanguageId = table.Column<int>(nullable: false),
-                    OrgName = table.Column<string>(nullable: true),
+                    OrgName = table.Column<string>(nullable: false),
                     PaperFile = table.Column<byte[]>(nullable: true),
                     ReviewerId = table.Column<int>(nullable: true),
+                    Status = table.Column<int>(nullable: false),
                     SubmissionDate = table.Column<DateTime>(nullable: false),
-                    TitleENG = table.Column<string>(nullable: true),
-                    TitleORG = table.Column<string>(nullable: true)
+                    TitleENG = table.Column<string>(nullable: false),
+                    TitleORG = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {

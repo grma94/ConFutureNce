@@ -12,24 +12,24 @@
 <table class="table">
     <thead>
         <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.TitleENG)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.TitleORG)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Authors)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Abstract)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.OrgName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.SubmissionDate)
-                </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TitleENG)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TitleORG)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Authors)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Abstract)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OrgName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SubmissionDate)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Author)
             </th>
@@ -38,6 +38,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Reviewer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
             </th>
             <th></th>
         </tr>
@@ -64,13 +67,16 @@
                 @Html.DisplayFor(modelItem => item.SubmissionDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Email)
+                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Language.LanguageName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.PaperId">Edit</a> |

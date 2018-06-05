@@ -10,13 +10,18 @@ namespace ConFutureNce.Models
     public class Paper
     {
         public int PaperId { get; set; }
+        [Required]
         public string TitleENG { get; set; }
+        [Required]
         public string TitleORG { get; set; }
+        [Required]
         public string Authors { get; set; }
+        [Required]
         public string Abstract { get; set; }
+        [Required]
         public string OrgName { get; set; }
         public DateTime SubmissionDate { get; set; }
-        public enum ProcessStatus { Submitted, UnderReview, Reviewed, Qualified, Unqualified};
+        public ProcessStatus Status { get; set; }
         public byte[] PaperFile { get; set; }
         public int LanguageId { get; set; }
         public int AuthorId { get; set; }
@@ -31,5 +36,14 @@ namespace ConFutureNce.Models
         public Author Author { get; set; }
         [ForeignKey("ReviewerId")]
         public Reviewer Reviewer { get; set; }
+
+        public enum ProcessStatus
+        {
+            Submitted,
+            UnderReview,
+            Reviewed,
+            Qualified,
+            Unqualified
+        };
     }
 }

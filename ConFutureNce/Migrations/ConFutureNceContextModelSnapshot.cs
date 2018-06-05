@@ -148,25 +148,32 @@ namespace ConFutureNce.Migrations
                     b.Property<int>("PaperId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Abstract");
+                    b.Property<string>("Abstract")
+                        .IsRequired();
 
                     b.Property<int>("AuthorId");
 
-                    b.Property<string>("Authors");
+                    b.Property<string>("Authors")
+                        .IsRequired();
 
                     b.Property<int>("LanguageId");
 
-                    b.Property<string>("OrgName");
+                    b.Property<string>("OrgName")
+                        .IsRequired();
 
                     b.Property<byte[]>("PaperFile");
 
                     b.Property<int?>("ReviewerId");
 
+                    b.Property<int>("Status");
+
                     b.Property<DateTime>("SubmissionDate");
 
-                    b.Property<string>("TitleENG");
+                    b.Property<string>("TitleENG")
+                        .IsRequired();
 
-                    b.Property<string>("TitleORG");
+                    b.Property<string>("TitleORG")
+                        .IsRequired();
 
                     b.HasKey("PaperId");
 

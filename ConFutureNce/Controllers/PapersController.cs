@@ -77,12 +77,17 @@ namespace ConFutureNce.Controllers
                     paper.PaperFile = memoryStream.ToArray();
                 }
                 paper.SubmissionDate = DateTime.Now;
+                paper.Status = 0;
                 _context.Add(paper);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator", paper.AuthorId);
-            ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId", paper.LanguageId);
+            ICollection<Language> languageList = new List<Language>();
+            languageList = (from language in _context.Language select language).ToList();
+            ViewBag.ListofLanguages = languageList;
+            ICollection<Author> authorsList = new List<Author>();
+            authorsList = (from author in _context.Author select author).ToList();
+            ViewBag.ListofAuthors = authorsList;
             return View(paper);
         }
 
