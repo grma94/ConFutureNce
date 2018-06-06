@@ -56,7 +56,7 @@
             @Html.DisplayNameFor(model => model.Author)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Author.Discriminator)
+            @Html.DisplayFor(model => model.Author.ApplicationUser.Name)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Language)
@@ -68,7 +68,7 @@
             @Html.DisplayNameFor(model => model.Reviewer)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Reviewer.Discriminator)
+            @Html.DisplayFor(model => model.Reviewer.ApplicationUser.Name)
         </dd>
     </dl>
 </div>
