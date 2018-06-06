@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ConFutureNce.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -64,7 +65,9 @@ namespace ConFutureNce
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
             DbInitializer.Initialize(context);
+            AccountRolesManagement.CreateRoles(context).Wait();
         }
     }
 }
