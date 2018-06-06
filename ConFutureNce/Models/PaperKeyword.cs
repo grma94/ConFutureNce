@@ -9,6 +9,7 @@ namespace ConFutureNce.Models
 {
     public class PaperKeyword
     {
+        [StringLength(40)]
         public string KeyWord { get; set; }
         public int PaperId { get; set; }
 

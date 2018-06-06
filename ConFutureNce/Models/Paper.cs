@@ -11,14 +11,19 @@ namespace ConFutureNce.Models
     {
         public int PaperId { get; set; }
         [Required]
+        [StringLength(200)]
         public string TitleENG { get; set; }
         [Required]
+        [StringLength(200)]
         public string TitleORG { get; set; }
         [Required]
+        [StringLength(200)]
         public string Authors { get; set; }
         [Required]
+        [StringLength(1000)]
         public string Abstract { get; set; }
         [Required]
+        [StringLength(100)]
         public string OrgName { get; set; }
         public DateTime SubmissionDate { get; set; }
         public ProcessStatus Status { get; set; }

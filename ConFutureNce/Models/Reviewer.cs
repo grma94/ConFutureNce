@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace ConFutureNce.Models
     {
         public string ScTitle { get; set; }
         public string OrgName { get; set; }
-
+        [Required]
         public int Language1Id { get; set; }
 
         public int? Language2Id { get; set; }
