@@ -45,10 +45,13 @@ namespace ConFutureNce.Controllers
         }
 
         // GET: Reviews/Create
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
-            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId");
-            return View();
+            var review = new Review
+            {
+                PaperId = id
+            };
+            return View(review);
         }
 
         // POST: Reviews/Create
@@ -56,15 +59,15 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ReviewId,Problems,WhyProblems,Solution,Achievements,NotMentioned,Grade,GeneralComments,Date,PaperId")] Review review)
+        public async Task<IActionResult> Create([Bind("ReviewId,Problems,WhyProblems,Solution,Achievements,NotMentioned,Grade,GeneralComments,PaperId")] Review review)
         {
             if (ModelState.IsValid)
             {
+                review.Date = DateTime.Now;
                 _context.Add(review);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId", review.PaperId);
             return View(review);
         }
 
