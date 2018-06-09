@@ -30,7 +30,7 @@ namespace ConFutureNce.ViewModels
         public int AuthorId { get; set; }
 
         public string PaperKeywords { get; set; }
-        public Language Language { get; set; }
+        public Models.Language Language { get; set; }
 
     }
 }
