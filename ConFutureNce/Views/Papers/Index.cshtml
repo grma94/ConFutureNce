@@ -67,13 +67,13 @@
                 @Html.DisplayFor(modelItem => item.SubmissionDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Name)
+                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Fullname)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Language.LanguageName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Name)
+                @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Fullname)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Status)
