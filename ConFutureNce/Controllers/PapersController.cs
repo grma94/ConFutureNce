@@ -114,6 +114,12 @@ namespace ConFutureNce.Controllers
                 return NotFound();
             }
 
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser.Users.Any(p => p.GetType().ToString() == "ConFutureNce.Models.Reviewer"))
+            {
+                return View("DetailsReviewer", paper);
+            }
+
             return View(paper);
         }
 
