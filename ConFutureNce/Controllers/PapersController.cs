@@ -8,7 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using ConFutureNce.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ConFutureNce.Controllers
 {
@@ -24,8 +26,16 @@ namespace ConFutureNce.Controllers
         }
 
         // GET: Papers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder,string searchString)
         {
+            // Sorting properties
+            ViewData["TitleENGSortParam"] = String.IsNullOrEmpty(sortOrder) ? "TitleENGDesc" : "";
+            ViewData["AuthorSortParam"] = sortOrder == "AuthorAsc" ? "AuthorDesc" : "AuthorAsc";
+            ViewData["AuthorsSortParam"] = sortOrder == "AuthorsAsc" ? "AuthorsDesc" : "AuthorsAsc";
+            ViewData["ReviewerSortParam"] = sortOrder == "ReviewerAsc" ? "ReviewerDesc" : "ReviewerAsc";
+            ViewData["StatusSortParam"] = sortOrder == "StatusAsc" ? "StatusDesc" : "StatusAsc";
+            // Searching propertie
+            ViewData["CurrentFilter"] = searchString;
 
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             
@@ -34,52 +44,56 @@ namespace ConFutureNce.Controllers
                 .Include(p => p.PaperKeywords)
                 .Include(p => p.Reviewer.ApplicationUser);
 
-            // assumed one user one role
-            var firstRole = (await _userManager.GetRolesAsync(currentUser)).First();
-            switch (firstRole)
+
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            foreach (var userType in currentUser.Users)
             {
-                case "Author":
-                {
-                    var authorId = _context.Author.FirstOrDefault(a => a.ApplicationUserId == currentUser.Id).UserTypeId;
-                        
-                    var model = await papers.Where(p => p.AuthorId == authorId)
-                        .OrderBy(p => p.TitleENG)
-                        .ToListAsync();
-                    
-                
-                    return View("Author", model);
-                }
-                case "Reviewer":
-                {
-                    var reviewerId = _context.Reviewer
-                        .FirstOrDefaultAsync(a => a.ApplicationUserId == currentUser.Id)
-                        .Id;
-                    var model = await _context.Paper
-                        .Include(p => p.PaperKeywords)
-                        .Include(p => p.Reviewer)
-                        .Where(p => p.ReviewerId == reviewerId)
-                        .OrderBy(p => p.TitleENG)
-                        .ToListAsync();
 
-                        return View("Reviewer", model);
-                }
-                case "ProgrammeCommitteeMember":
+                switch (userType.GetType().ToString())
                 {
-                    var reviewerId = _context.ProgrammeCommitteeMember
-                        .FirstOrDefaultAsync(a => a.ApplicationUserId == currentUser.Id)
-                        .Id;
-                    var model = await _context.Paper
-                        .Include(p => p.PaperKeywords)
-                        .Include(p => p.Reviewer)
-                        .OrderBy(p => p.TitleENG)
-                        .ToListAsync();
+                    case "ConFutureNce.Models.Author":
+                    {
+                        var authorId = userType.UserTypeId;
 
+                        IEnumerable<Paper> model = papers
+                            .Where(p => p.AuthorId == authorId)
+                            .OrderBy(p => p.TitleENG);
+
+                        model = SearchPapers(model, searchString).ToList();
+                        model = SortPapers(model,sortOrder).ToList();
+
+
+                        return View("Author", model);
+                    }
+                    case "ConFutureNce.Models.Reviewer":
+                    {
+                        var reviewerId = userType.UserTypeId;
+                        IEnumerable<Paper> model = papers
+                            .Where(p => p.ReviewerId == reviewerId)
+                            .OrderBy(p => p.TitleENG);
+
+                        model = SearchPapers(model, searchString).ToList();
+                        model = SortPapers(model, sortOrder).ToList();
+
+                            return View("Reviewer", model);
+                    }
+                    case "ConFutureNce.Models.ProgrammeCommitteeMember":
+                    {
+                        IEnumerable<Paper> model =  papers
+                            .OrderBy(p => p.TitleENG);
+
+                        model = SearchPapers(model, searchString).ToList();
+                        model = SortPapers(model, sortOrder).ToList();
 
                         return View("ProgrammeCommitteeMember", model);
+                    }
                 }
-                default:
-                    return View();
             }
+            
+            return View();
         }
 
         // GET: Papers/Details/5
@@ -243,10 +257,84 @@ namespace ConFutureNce.Controllers
         {
             return _context.Paper.Any(e => e.PaperId == id);
         }
+        // Need loaded Authors and Reviever object with their ApplicationUser objects
+        private IEnumerable<Paper> SortPapers(IEnumerable<Paper> papersToSort, string sortOrder)
 
-        //public string KeywordsToString(IEnumerable<PaperKeyword> PaperKeywords)
-        //{
-        //     return string.Join(", ", PaperKeywords.);
-        //}
+        {
+            switch (sortOrder)
+            {
+                case "TitleENGDesc":
+                {
+                    papersToSort = papersToSort.OrderByDescending(p => p.TitleENG);
+                    break;
+                }
+                case "AuthorDesc":
+                {
+                    papersToSort = papersToSort.OrderByDescending(p => p.Author.ApplicationUser.Fullname);
+                    break;
+                }
+                case "AuthorAsc":
+                {
+                    papersToSort = papersToSort.OrderBy(p => p.Author.ApplicationUser.Fullname);
+                    break;
+                }
+                case "AuthorsDesc":
+                {
+                    papersToSort = papersToSort.OrderByDescending(p => p.Authors);
+                    break;
+                }
+                case "AuthorsAsc":
+                {
+                    papersToSort = papersToSort.OrderBy(p => p.Authors);
+                    break;
+                }
+                case "ReviewerDesc":
+                {
+                    papersToSort = papersToSort
+                        .OrderByDescending(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
+                    break;
+                }
+                case "ReviewerAsc":
+                {
+                    papersToSort = papersToSort
+                        .OrderBy(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
+                    break;
+                }
+                case "StatusDesc":
+                {
+                    papersToSort = papersToSort.OrderByDescending(p => p.Status);
+                    break;
+                }
+                case "StatusAsc":
+                {
+                    papersToSort = papersToSort.OrderBy(p => p.Status);
+                    break;
+                }
+                default:
+                {
+                    papersToSort = papersToSort.OrderBy(p => p.TitleENG);
+                    break;
+                }
+                    
+            }
+
+            return papersToSort;
+        }
+        // Need loaded Authors and Reviever object with their ApplicationUser objects
+        private IEnumerable<Paper> SearchPapers(IEnumerable<Paper> papersToFilter, string searchString)
+        {
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                papersToFilter = papersToFilter
+                    .Where(p => p.TitleENG.Contains(searchString)
+                                || p.Author.ApplicationUser.Fullname.Contains(searchString)
+                                || p.Authors.Contains(searchString)
+                                || (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname.Contains(searchString) : false)
+                                || p.KeywordsToString.Contains(searchString)
+                                || p.Status.ToString().Contains(searchString));
+            }
+
+            return papersToFilter;
+        }
     }
 }
