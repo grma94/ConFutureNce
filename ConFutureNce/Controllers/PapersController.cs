@@ -23,7 +23,7 @@ namespace ConFutureNce.Controllers
         // GET: Papers
         public async Task<IActionResult> Index()
         {
-            var conFutureNceContext = _context.Paper.Include(p => p.Author).Include(p => p.Language).Include(p => p.Reviewer);
+            var conFutureNceContext = _context.Paper.Include(p => p.Author.ApplicationUser).Include(p => p.Language).Include(p => p.Reviewer.ApplicationUser);
             return View(await conFutureNceContext.ToListAsync());
         }
 
@@ -36,9 +36,9 @@ namespace ConFutureNce.Controllers
             }
 
             var paper = await _context.Paper
-                .Include(p => p.Author)
+                .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.Language)
-                .Include(p => p.Reviewer)
+                .Include(p => p.Reviewer.ApplicationUser)
                 .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {

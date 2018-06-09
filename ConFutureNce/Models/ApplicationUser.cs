@@ -22,5 +22,10 @@ namespace ConFutureNce.Models
         [ForeignKey("ConferenceName")]
         public Conference Conference { get; set; }
         public ICollection<UserType> Users {get;set;}
+
+        public string Fullname
+        {
+            get { return Name + " " + Surname; }
+        }
     }
 }
