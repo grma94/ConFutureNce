@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ConFutureNce.Models.Paper>
+﻿@model PaginatedList<Paper>
 
 @{
     ViewData["Title"] = "Reviewer";
@@ -20,39 +20,60 @@
     <thead>
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["TitleENGSortParam"]">@Html.DisplayNameFor(model => model.TitleENG)</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["TitleENGSortParam"]">@Html.DisplayNameFor(model => model.First().TitleENG)</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["AuthorsSortParam"]">@Html.DisplayNameFor(model => model.Authors)</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["AuthorsSortParam"]">@Html.DisplayNameFor(model => model.First().Authors)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PaperKeywords)
+                @Html.DisplayNameFor(model => model.First().PaperKeywords)
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParam"]">@Html.DisplayNameFor(model => model.Status)</a>
-            </th>                
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParam"]">@Html.DisplayNameFor(model => model.First().Status)</a>
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TitleENG)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Authors)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.KeywordsToString)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.PaperId">Details</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TitleENG)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Authors)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.KeywordsToString)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.PaperId">Details</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-page="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-page="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>

@@ -26,7 +26,7 @@ namespace ConFutureNce.Controllers
         }
 
         // GET: Papers
-        public async Task<IActionResult> Index(string sortOrder,string searchString)
+        public async Task<IActionResult> Index(string sortOrder,string searchString, string currentFilter, int? page)
         {
             // Sorting properties
             ViewData["TitleENGSortParam"] = String.IsNullOrEmpty(sortOrder) ? "TitleENGDesc" : "";
@@ -34,9 +34,16 @@ namespace ConFutureNce.Controllers
             ViewData["AuthorsSortParam"] = sortOrder == "AuthorsAsc" ? "AuthorsDesc" : "AuthorsAsc";
             ViewData["ReviewerSortParam"] = sortOrder == "ReviewerAsc" ? "ReviewerDesc" : "ReviewerAsc";
             ViewData["StatusSortParam"] = sortOrder == "StatusAsc" ? "StatusDesc" : "StatusAsc";
+            // Pagination propertie
+            ViewData["CurrentSort"] = sortOrder;
+            if (searchString != null)
+                page = 1;
+            else
+                searchString = currentFilter;
+            int pageSize = 3;
             // Searching propertie
             ViewData["CurrentFilter"] = searchString;
-
+            
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             
             var papers = _context.Paper
@@ -62,11 +69,12 @@ namespace ConFutureNce.Controllers
                             .Where(p => p.AuthorId == authorId)
                             .OrderBy(p => p.TitleENG);
 
-                        model = SearchPapers(model, searchString).ToList();
-                        model = SortPapers(model,sortOrder).ToList();
+                        model = SearchPapers(model, searchString);
+                        model = SortPapers(model,sortOrder);
+                        model = PaginatedList<Paper>.Create( model, page ?? 1, pageSize);
 
 
-                        return View("Author", model);
+                        return View("Author", (PaginatedList<Paper>) model);
                     }
                     case "ConFutureNce.Models.Reviewer":
                     {
@@ -75,20 +83,22 @@ namespace ConFutureNce.Controllers
                             .Where(p => p.ReviewerId == reviewerId)
                             .OrderBy(p => p.TitleENG);
 
-                        model = SearchPapers(model, searchString).ToList();
-                        model = SortPapers(model, sortOrder).ToList();
+                        model = SearchPapers(model, searchString);
+                        model = SortPapers(model, sortOrder);
+                        model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
 
-                            return View("Reviewer", model);
+                            return View("Reviewer", (PaginatedList<Paper>) model);
                     }
                     case "ConFutureNce.Models.ProgrammeCommitteeMember":
                     {
                         IEnumerable<Paper> model =  papers
                             .OrderBy(p => p.TitleENG);
 
-                        model = SearchPapers(model, searchString).ToList();
-                        model = SortPapers(model, sortOrder).ToList();
+                        model = SearchPapers(model, searchString);
+                        model = SortPapers(model, sortOrder);
+                        model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
 
-                        return View("ProgrammeCommitteeMember", model);
+                            return View("ProgrammeCommitteeMember", (PaginatedList<Paper>) model);
                     }
                 }
             }
