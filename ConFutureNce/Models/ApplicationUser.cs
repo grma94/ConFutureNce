@@ -12,8 +12,10 @@ namespace ConFutureNce.Models
     public class ApplicationUser : IdentityUser
     {
         [Required]
+        [StringLength(50)]
         public string Name { get; set; }
         [Required]
+        [StringLength(100)]
         public string Surname { get; set; }
         public string Address { get; set; }
         [Required]
@@ -22,7 +24,6 @@ namespace ConFutureNce.Models
         [ForeignKey("ConferenceName")]
         public Conference Conference { get; set; }
         public ICollection<UserType> Users {get;set;}
-
         public string Fullname
         {
             get { return Name + " " + Surname; }

@@ -14,6 +14,7 @@ namespace ConFutureNce.Models
         [Required]
         public string BillingAddress { get; set; }
         [Required]
+
         public string TaxNumber { get; set; }
         public int PaymentId { get; set; }
 

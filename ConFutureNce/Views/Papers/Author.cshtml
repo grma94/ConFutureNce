@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Paper>
+
+@{
+    ViewData["Title"] = "Author";
+}
+
+<h2>Author</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TitleENG)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Authors)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PaperKeywords)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Reviewer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TitleENG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Authors)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.KeywordsToString)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Fullname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            
+        </tr>
+}
+    </tbody>
+</table>

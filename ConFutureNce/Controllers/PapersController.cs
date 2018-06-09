@@ -8,23 +8,78 @@ using Microsoft.EntityFrameworkCore;
 using ConFutureNce.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Microsoft.AspNetCore.Identity;
 
 namespace ConFutureNce.Controllers
 {
     public class PapersController : Controller
     {
         private readonly ConFutureNceContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PapersController(ConFutureNceContext context)
+        public PapersController(ConFutureNceContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Papers
         public async Task<IActionResult> Index()
         {
-            var conFutureNceContext = _context.Paper.Include(p => p.Author.ApplicationUser).Include(p => p.Language).Include(p => p.Reviewer.ApplicationUser);
-            return View(await conFutureNceContext.ToListAsync());
+
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            
+            var papers = _context.Paper
+                .Include(p => p.Author.ApplicationUser)
+                .Include(p => p.PaperKeywords)
+                .Include(p => p.Reviewer.ApplicationUser);
+
+            // assumed one user one role
+            var firstRole = (await _userManager.GetRolesAsync(currentUser)).First();
+            switch (firstRole)
+            {
+                case "Author":
+                {
+                    var authorId = _context.Author.FirstOrDefault(a => a.ApplicationUserId == currentUser.Id).UserTypeId;
+                        
+                    var model = await papers.Where(p => p.AuthorId == authorId)
+                        .OrderBy(p => p.TitleENG)
+                        .ToListAsync();
+                    
+                
+                    return View("Author", model);
+                }
+                case "Reviewer":
+                {
+                    var reviewerId = _context.Reviewer
+                        .FirstOrDefaultAsync(a => a.ApplicationUserId == currentUser.Id)
+                        .Id;
+                    var model = await _context.Paper
+                        .Include(p => p.PaperKeywords)
+                        .Include(p => p.Reviewer)
+                        .Where(p => p.ReviewerId == reviewerId)
+                        .OrderBy(p => p.TitleENG)
+                        .ToListAsync();
+
+                        return View("Reviewer", model);
+                }
+                case "ProgrammeCommitteeMember":
+                {
+                    var reviewerId = _context.ProgrammeCommitteeMember
+                        .FirstOrDefaultAsync(a => a.ApplicationUserId == currentUser.Id)
+                        .Id;
+                    var model = await _context.Paper
+                        .Include(p => p.PaperKeywords)
+                        .Include(p => p.Reviewer)
+                        .OrderBy(p => p.TitleENG)
+                        .ToListAsync();
+
+
+                        return View("ProgrammeCommitteeMember", model);
+                }
+                default:
+                    return View();
+            }
         }
 
         // GET: Papers/Details/5
@@ -36,9 +91,9 @@ namespace ConFutureNce.Controllers
             }
 
             var paper = await _context.Paper
-                .Include(p => p.Author.ApplicationUser)
+                .Include(p => p.Author)
                 .Include(p => p.Language)
-                .Include(p => p.Reviewer.ApplicationUser)
+                .Include(p => p.Reviewer)
                 .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
@@ -184,5 +239,10 @@ namespace ConFutureNce.Controllers
         {
             return _context.Paper.Any(e => e.PaperId == id);
         }
+
+        //public string KeywordsToString(IEnumerable<PaperKeyword> PaperKeywords)
+        //{
+        //     return string.Join(", ", PaperKeywords.);
+        //}
     }
 }
