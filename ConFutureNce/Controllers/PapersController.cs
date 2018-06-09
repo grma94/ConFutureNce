@@ -109,9 +109,9 @@ namespace ConFutureNce.Controllers
             ICollection<Language> languageList = new List<Language>();
             languageList = (from language in _context.Language select language).ToList();
             ViewBag.ListofLanguages = languageList;
-            ICollection<Author> authorsList = new List<Author>();
-            authorsList = (from author in _context.Author select author).ToList();
-            ViewBag.ListofAuthors = authorsList;
+     //       ICollection<Author> authorsList = new List<Author>();
+     //       authorsList = (from author in _context.Author select author).ToList();
+     //       ViewBag.ListofAuthors = authorsList;
             //ViewBag.ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator");
             //ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId");
             return View();
@@ -122,8 +122,12 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId,AuthorId")] Paper paper, IFormFile file)
+        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId")] Paper paper, IFormFile file)
         {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            
+            var userId = user.Users.First().UserTypeId;
+            paper.AuthorId = userId;
             if (ModelState.IsValid)
             {
                 using (var memoryStream = new MemoryStream())
