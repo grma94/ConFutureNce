@@ -50,5 +50,20 @@ namespace ConFutureNce.Models
             Qualified,
             Unqualified
         };
+
+        public string KeywordsToString
+        {
+            get
+            {
+                string container = string.Empty;
+
+                foreach (var paperKeyword in PaperKeywords)
+                {
+                    container += paperKeyword.KeyWord + ", ";
+                }
+
+                return container.TrimEnd( new[] {' ', ','});
+            }
+        }
     }
 }

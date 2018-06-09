@@ -1,0 +1,66 @@
+﻿@model IEnumerable<ConFutureNce.Models.Paper>
+
+@{
+    ViewData["Title"] = "ProgrammeCommitteeMember";
+}
+
+<h2>ProgrammeCommitteeMember</h2>
+
+<form asp-action="Index" method="get">
+    <div class="form-actions on-color">
+        <p>
+            Find: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]"/>
+            <input type="submit" value="Search" class="btn btn-default"/> |
+            <a asp-action="Index">Back to Full List</a>
+        </p>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["TitleENGSortParam"]"> @Html.DisplayNameFor(model => model.TitleENG)</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["AuthorSortParam"]">@Html.DisplayNameFor(model => model.Author)</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["AuthorsSortParam"]">@Html.DisplayNameFor(model => model.Authors)</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["ReviewerSortParam"]">@Html.DisplayNameFor(model => model.Reviewer)</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["StatusSortParam"]">@Html.DisplayNameFor(model => model.Status)</a>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TitleENG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Fullname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Authors)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Fullname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.PaperId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.PaperId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.PaperId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
