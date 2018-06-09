@@ -105,9 +105,10 @@ namespace ConFutureNce.Controllers
             }
 
             var paper = await _context.Paper
-                .Include(p => p.Author)
+                .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.Language)
-                .Include(p => p.Reviewer)
+                .Include(p => p.PaperKeywords)
+                .Include(p => p.Reviewer.ApplicationUser)
                 .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
@@ -136,12 +137,35 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId")] Paper paper, IFormFile file)
+        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId,PaperKeywords")] ViewModels.PaperPaperKeyworsViewModel paperPaperKeyword, IFormFile file)
         {
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            
-            var userId = user.Users.First().UserTypeId;
-            paper.AuthorId = userId;
+
+            user = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == user.Id);
+            var paper = new Paper
+            {
+                Abstract = paperPaperKeyword.Abstract,
+                TitleENG = paperPaperKeyword.TitleENG,
+                TitleORG = paperPaperKeyword.TitleORG,
+                Authors = paperPaperKeyword.Authors,
+                OrgName = paperPaperKeyword.OrgName,
+                LanguageId = paperPaperKeyword.LanguageId
+            };
+
+            var userTypeId = user.Users.First().UserTypeId;
+            paper.AuthorId = userTypeId;
+            var paperKeywords = new PaperKeyword
+            {
+                KeyWord = paperPaperKeyword.PaperKeywords,
+                Paper = paper
+            };
+            List<PaperKeyword> ppk = new List<PaperKeyword>
+            {
+                paperKeywords
+            };
+            paper.PaperKeywords = ppk;
             if (ModelState.IsValid)
             {
                 using (var memoryStream = new MemoryStream())
