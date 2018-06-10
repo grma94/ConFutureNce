@@ -9,6 +9,7 @@ using ConFutureNce.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Linq.Expressions;
+using ConFutureNce.Models.PaperViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -257,6 +258,58 @@ namespace ConFutureNce.Controllers
             _context.Paper.Remove(paper);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> AssignReviewer()
+        {
+            IEnumerable<Paper> model = _context.Paper
+                .Include(p => p.Author.ApplicationUser)
+                .Include(p => p.PaperKeywords)
+                .Include(p => p.Reviewer.ApplicationUser)
+                .Include(p => p.Language.ReviewersFirst)
+                .Include(p => p.Language.ReviewersSecond)
+                .Include(p => p.Language.ReviewersThird);
+
+
+            model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
+
+            // SelectList data preparation
+            var papersLanguage = model
+                .GroupBy(p => p.LanguageId)
+                .Select(p => p.First())
+                .Select(p => new
+                {
+                    langId = p.LanguageId,
+                    reviewerslist = p.Language.AllReviewers
+                })
+                .OrderBy(pl => pl.langId);
+
+            var Vmodel = new List<AssignReviewerViewModel>();
+            var reviewers = _context.ApplicationUser;
+            foreach (var language in papersLanguage)
+            {
+               var tempList = language.reviewerslist
+                   .Select(r => new ReviewerVM
+                   {
+                        ReviewerId = r.UserTypeId,
+                        ReviewerName = reviewers.First(au => au.Id == r.ApplicationUserId).Fullname
+                    })
+                   .ToList();
+                tempList.Insert(0, new ReviewerVM
+                {
+                    ReviewerId = -1,
+                    ReviewerName = "SELECT REVIEWER"
+                });
+                Vmodel.Add(new AssignReviewerViewModel
+                {
+                    LangId = language.langId,
+                    reviewersPerLang = tempList
+                });
+            }
+
+            ViewBag.listOfReviewers = Vmodel;
+
+            return View(model);
         }
 
         private bool PaperExists(int id)
