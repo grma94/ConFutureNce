@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Data.SqlClient;
 using ConFutureNce.Models.PaperViewModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ConFutureNce.Controllers
 {
@@ -28,6 +29,7 @@ namespace ConFutureNce.Controllers
         }
 
         // GET: Papers
+        [Authorize]
         public async Task<IActionResult> Index(string sortOrder,string searchString, string currentFilter, int? page)
         {
             // Sorting properties
@@ -109,6 +111,7 @@ namespace ConFutureNce.Controllers
         }
 
         // GET: Papers/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -138,6 +141,7 @@ namespace ConFutureNce.Controllers
         }
 
         // GET: Papers/Create
+        [Authorize]
         public IActionResult Create()
         {
             ICollection<Language> languageList = new List<Language>();
@@ -149,6 +153,7 @@ namespace ConFutureNce.Controllers
         // POST: Papers/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId,PaperKeywords")] ViewModels.PaperPaperKeyworsViewModel paperPaperKeyword, IFormFile file)
@@ -212,7 +217,7 @@ namespace ConFutureNce.Controllers
             return View(paperPaperKeyword);
         }
 
-        
+        [Authorize]
         public async Task<IActionResult> AssignReviewer()
         {
             IEnumerable<Paper> model = _context.Paper
@@ -268,6 +273,7 @@ namespace ConFutureNce.Controllers
         // POST: PAPERS/ASSIGNREVIEWER
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignReviewer(IFormCollection form)

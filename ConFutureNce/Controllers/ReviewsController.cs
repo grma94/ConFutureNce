@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ConFutureNce.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ConFutureNce.Controllers
 {
@@ -20,7 +21,7 @@ namespace ConFutureNce.Controllers
             _context = context;
             _userManager = userManager;
         }
-
+        [Authorize]
         // GET: Reviews
         public async Task<IActionResult> Index()
         {
@@ -57,6 +58,7 @@ namespace ConFutureNce.Controllers
             return View("AccessDenied");
         }
 
+        [Authorize]
         // GET: Reviews/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -76,6 +78,7 @@ namespace ConFutureNce.Controllers
             return View(review);
         }
 
+        [Authorize]
         // GET: Reviews/Create
         public IActionResult Create(int id)
         {
@@ -89,6 +92,7 @@ namespace ConFutureNce.Controllers
         // POST: Reviews/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ReviewId,Problems,WhyProblems,Solution,Achievements,NotMentioned,Grade,GeneralComments,PaperId")] Review review)

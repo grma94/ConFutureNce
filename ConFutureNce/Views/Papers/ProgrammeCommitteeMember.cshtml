@@ -4,7 +4,7 @@
     ViewData["Title"] = "ProgrammeCommitteeMember";
 }
 
-<h2>ProgrammeCommitteeMember</h2>
+<h2>Submitted papers</h2>
 
 <div class="row">
     <div class="col-md-8 col-xs-8">
@@ -65,9 +65,7 @@
                     @Html.DisplayFor(modelItem => item.Status)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.PaperId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.PaperId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.PaperId">Delete</a>
+                    <a asp-action="Details" asp-route-id="@item.PaperId">Details</a>
                 </td>
             </tr>
         }
