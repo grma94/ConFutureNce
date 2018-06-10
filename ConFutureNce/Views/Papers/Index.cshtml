@@ -6,41 +6,35 @@
 
 <h2>Index</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TitleENG)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TitleORG)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Authors)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Abstract)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OrgName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SubmissionDate)
-            </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TitleENG)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TitleORG)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Authors)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Abstract)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OrgName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SubmissionDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
             <th>
                 @Html.DisplayNameFor(model => model.Author)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Language)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Reviewer)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
             </th>
             <th></th>
         </tr>
@@ -67,20 +61,16 @@
                 @Html.DisplayFor(modelItem => item.SubmissionDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Fullname)
+                @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Language.LanguageName)
+                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Fullname)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Fullname)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
                 <a asp-action="Details" asp-route-id="@item.PaperId">Details</a>
-            </td>
         </tr>
 }
     </tbody>

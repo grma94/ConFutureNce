@@ -27,7 +27,7 @@ namespace ConFutureNce.Controllers
         }
 
         // GET: Papers
-        public async Task<IActionResult> Index(string sortOrder, string searchString)
+        public async Task<IActionResult> Index(string sortOrder,string searchString, string currentFilter, int? page)
         {
             // Sorting properties
             ViewData["TitleENGSortParam"] = String.IsNullOrEmpty(sortOrder) ? "TitleENGDesc" : "";
@@ -35,11 +35,18 @@ namespace ConFutureNce.Controllers
             ViewData["AuthorsSortParam"] = sortOrder == "AuthorsAsc" ? "AuthorsDesc" : "AuthorsAsc";
             ViewData["ReviewerSortParam"] = sortOrder == "ReviewerAsc" ? "ReviewerDesc" : "ReviewerAsc";
             ViewData["StatusSortParam"] = sortOrder == "StatusAsc" ? "StatusDesc" : "StatusAsc";
+            // Pagination propertie
+            ViewData["CurrentSort"] = sortOrder;
+            if (searchString != null)
+                page = 1;
+            else
+                searchString = currentFilter;
+            int pageSize = 3;
             // Searching propertie
             ViewData["CurrentFilter"] = searchString;
-
+            
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-
+            
             var papers = _context.Paper
                 .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.PaperKeywords)
@@ -56,45 +63,48 @@ namespace ConFutureNce.Controllers
                 switch (userType.GetType().ToString())
                 {
                     case "ConFutureNce.Models.Author":
-                        {
-                            var authorId = userType.UserTypeId;
+                    {
+                        var authorId = userType.UserTypeId;
 
-                            IEnumerable<Paper> model = papers
-                                .Where(p => p.AuthorId == authorId)
-                                .OrderBy(p => p.TitleENG);
+                        IEnumerable<Paper> model = papers
+                            .Where(p => p.AuthorId == authorId)
+                            .OrderBy(p => p.TitleENG);
 
-                            model = SearchPapers(model, searchString).ToList();
-                            model = SortPapers(model, sortOrder).ToList();
+                        model = SearchPapers(model, searchString);
+                        model = SortPapers(model,sortOrder);
+                        model = PaginatedList<Paper>.Create( model, page ?? 1, pageSize);
 
 
-                            return View("Author", model);
-                        }
+                        return View("Author", (PaginatedList<Paper>) model);
+                    }
                     case "ConFutureNce.Models.Reviewer":
-                        {
-                            var reviewerId = userType.UserTypeId;
-                            IEnumerable<Paper> model = papers
-                                .Where(p => p.ReviewerId == reviewerId)
-                                .OrderBy(p => p.TitleENG);
+                    {
+                        var reviewerId = userType.UserTypeId;
+                        IEnumerable<Paper> model = papers
+                            .Where(p => p.ReviewerId == reviewerId)
+                            .OrderBy(p => p.TitleENG);
 
-                            model = SearchPapers(model, searchString).ToList();
-                            model = SortPapers(model, sortOrder).ToList();
+                        model = SearchPapers(model, searchString);
+                        model = SortPapers(model, sortOrder);
+                        model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
 
-                            return View("Reviewer", model);
-                        }
+                            return View("Reviewer", (PaginatedList<Paper>) model);
+                    }
                     case "ConFutureNce.Models.ProgrammeCommitteeMember":
-                        {
-                            IEnumerable<Paper> model = papers
-                                .OrderBy(p => p.TitleENG);
+                    {
+                        IEnumerable<Paper> model =  papers
+                            .OrderBy(p => p.TitleENG);
 
-                            model = SearchPapers(model, searchString).ToList();
-                            model = SortPapers(model, sortOrder).ToList();
+                        model = SearchPapers(model, searchString);
+                        model = SortPapers(model, sortOrder);
+                        model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
 
-                            return View("ProgrammeCommitteeMember", model);
-                        }
+                            return View("ProgrammeCommitteeMember", (PaginatedList<Paper>) model);
+                    }
                 }
             }
-
-            return View();
+            
+            return View(papers);
         }
 
         // GET: Papers/Details/5
@@ -201,6 +211,96 @@ namespace ConFutureNce.Controllers
             return View(paperPaperKeyword);
         }
 
+        
+        public async Task<IActionResult> AssignReviewer()
+        {
+            IEnumerable<Paper> model = _context.Paper
+                .Include(p => p.Author.ApplicationUser)
+                .Include(p => p.PaperKeywords)
+                .Include(p => p.Reviewer.ApplicationUser)
+                .Include(p => p.Language.ReviewersFirst)
+                .Include(p => p.Language.ReviewersSecond)
+                .Include(p => p.Language.ReviewersThird);
+
+
+            model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
+
+            // SelectList data preparation
+            var papersLanguage = model
+                .GroupBy(p => p.LanguageId)
+                .Select(p => p.First())
+                .Select(p => new
+                {
+                    langId = p.LanguageId,
+                    reviewerslist = p.Language.AllReviewers
+                })
+                .OrderBy(pl => pl.langId);
+
+            var Vmodel = new List<AssignReviewerViewModel>();
+            var reviewers = _context.ApplicationUser;
+            foreach (var language in papersLanguage)
+            {
+               var tempList = language.reviewerslist
+                   .Select(r => new ReviewerVM
+                   {
+                        ReviewerId = r.UserTypeId,
+                        ReviewerName = reviewers.First(au => au.Id == r.ApplicationUserId).Fullname
+                    })
+                   .ToList();
+                tempList.Insert(0, new ReviewerVM
+                {
+                    ReviewerId = -1,
+                    ReviewerName = "SELECT REVIEWER"
+                });
+                Vmodel.Add(new AssignReviewerViewModel
+                {
+                    LangId = language.langId,
+                    reviewersPerLang = tempList
+                });
+            }
+
+            ViewBag.listOfReviewers = Vmodel;
+
+            return View(model);
+        }
+
+        // POST: PAPERS/ASSIGNREVIEWER
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignReviewer(IFormCollection form)
+        {
+            if (ModelState.IsValid)
+            {
+                var assignedReviewers = Request.Form["item.ReviewerId"];
+                var papersToAssign = Request.Form["item.PaperId"];
+
+                var papers = _context.Paper
+                    .Where(p => p.ReviewerId == null);
+
+                for (var i = 0; i < papersToAssign.Count; i++)
+                {
+                    if (assignedReviewers[i] == "-1")
+                        continue;
+
+                    var paper = await _context.Paper
+                        .FirstAsync(p => p.PaperId == Convert.ToInt32(papersToAssign[i]));
+
+                    paper.ReviewerId = Convert.ToInt32(assignedReviewers[i]);
+                    paper.Status = Paper.ProcessStatus.UnderReview;
+                }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View();
+        }
+
+        private bool PaperExists(int id)
+        {
+            return _context.Paper.Any(e => e.PaperId == id);
+        }
         // Need loaded Authors and Reviever object with their ApplicationUser objects
         private IEnumerable<Paper> SortPapers(IEnumerable<Paper> papersToSort, string sortOrder)
 
@@ -208,58 +308,58 @@ namespace ConFutureNce.Controllers
             switch (sortOrder)
             {
                 case "TitleENGDesc":
-                    {
-                        papersToSort = papersToSort.OrderByDescending(p => p.TitleENG);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort.OrderByDescending(p => p.TitleENG);
+                    break;
+                }
                 case "AuthorDesc":
-                    {
-                        papersToSort = papersToSort.OrderByDescending(p => p.Author.ApplicationUser.Fullname);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort.OrderByDescending(p => p.Author.ApplicationUser.Fullname);
+                    break;
+                }
                 case "AuthorAsc":
-                    {
-                        papersToSort = papersToSort.OrderBy(p => p.Author.ApplicationUser.Fullname);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort.OrderBy(p => p.Author.ApplicationUser.Fullname);
+                    break;
+                }
                 case "AuthorsDesc":
-                    {
-                        papersToSort = papersToSort.OrderByDescending(p => p.Authors);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort.OrderByDescending(p => p.Authors);
+                    break;
+                }
                 case "AuthorsAsc":
-                    {
-                        papersToSort = papersToSort.OrderBy(p => p.Authors);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort.OrderBy(p => p.Authors);
+                    break;
+                }
                 case "ReviewerDesc":
-                    {
-                        papersToSort = papersToSort
-                            .OrderByDescending(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort
+                        .OrderByDescending(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
+                    break;
+                }
                 case "ReviewerAsc":
-                    {
-                        papersToSort = papersToSort
-                            .OrderBy(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort
+                        .OrderBy(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
+                    break;
+                }
                 case "StatusDesc":
-                    {
-                        papersToSort = papersToSort.OrderByDescending(p => p.Status);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort.OrderByDescending(p => p.Status);
+                    break;
+                }
                 case "StatusAsc":
-                    {
-                        papersToSort = papersToSort.OrderBy(p => p.Status);
-                        break;
-                    }
+                {
+                    papersToSort = papersToSort.OrderBy(p => p.Status);
+                    break;
+                }
                 default:
-                    {
-                        papersToSort = papersToSort.OrderBy(p => p.TitleENG);
-                        break;
-                    }
-
+                {
+                    papersToSort = papersToSort.OrderBy(p => p.TitleENG);
+                    break;
+                }
+                    
             }
 
             return papersToSort;

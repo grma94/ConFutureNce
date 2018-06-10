@@ -1,0 +1,92 @@
+﻿@using System.Collections
+@using System.Linq
+@using ConFutureNce.Models.PaperViewModel
+@model IEnumerable<Paper>
+
+@{
+    ViewData["Title"] = "AssignReviewer";
+}
+
+<h2>AssignReviewer</h2>
+
+<h4>Paper</h4>
+<hr />
+<form asp-action="AssignReviewer">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group col-md-offset-8 col-xs-offset-8">
+        <input type="submit" value="Assign Reviewers" class="btn btn-default" />
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().TitleENG)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().Author)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().Authors)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().Reviewer)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.First().Status)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TitleENG)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Fullname)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Authors)
+                        </td>
+                        <td>
+                            @if (item.ReviewerId == null)
+                            {
+
+                                <input type="hidden" asp-for="@item.PaperId" />
+                                <div class="form-group">
+                                    <select asp-for="@item.ReviewerId" class="form-control" asp-items="@(new SelectList(((AssignReviewerViewModel) (((List<AssignReviewerViewModel>) ViewBag.listOfReviewers).Find(p => p.LangId == item.LanguageId))).reviewersPerLang, "ReviewerId", "ReviewerName"))"></select>
+                                    <span asp-validation-for="@item.ReviewerId" class="text-danger"></span>
+                                </div>
+                                
+
+
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Fullname)
+                            }
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.PaperId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.PaperId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.PaperId">Delete</a>
+                        </td>
+                    </tr>
+                }
+
+        </tbody>
+    </table>
+</form>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
