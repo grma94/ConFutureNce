@@ -11,9 +11,11 @@ namespace ConFutureNce.ViewModels
         public int PaperId { get; set; }
         [Required]
         [StringLength(200)]
+        [Display(Name = "English title")]
         public string TitleENG { get; set; }
         [Required]
         [StringLength(200)]
+        [Display(Name = "Title")]
         public string TitleORG { get; set; }
         [Required]
         [StringLength(200)]
@@ -23,12 +25,16 @@ namespace ConFutureNce.ViewModels
         public string Abstract { get; set; }
         [Required]
         [StringLength(100)]
+        [Display(Name = "Organization's name")]
         public string OrgName { get; set; }
         public DateTime SubmissionDate { get; set; }
+        [Required]
+        [Display(Name = "File")]
         public byte[] PaperFile { get; set; }
         public int LanguageId { get; set; }
         public int AuthorId { get; set; }
 
+        [Display(Name = "Keywords")]
         public string PaperKeywords { get; set; }
         public Models.Language Language { get; set; }
 

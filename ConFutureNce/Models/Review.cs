@@ -15,6 +15,7 @@ namespace ConFutureNce.Models
         public string Problems { get; set; }
         [Required]
         [MinLength(50)]
+        [Display(Name = "Why is a problem?")]
         public string WhyProblems { get; set; }
         [Required]
         [MinLength(50)]
@@ -24,10 +25,12 @@ namespace ConFutureNce.Models
         public string Achievements { get; set; }
         [Required]
         [MinLength(20)]
+        [Display(Name = "What wasn't mentioned?")]
         public string NotMentioned { get; set; }
         [Required]
         [MinLength(50)]
         public string Grade { get; set; }
+        [Display(Name = "General comments")]
         public string GeneralComments { get; set; }
         public DateTime Date { get; set; }
         public int PaperId { get; set; }

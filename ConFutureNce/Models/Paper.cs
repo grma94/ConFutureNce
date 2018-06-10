@@ -12,9 +12,11 @@ namespace ConFutureNce.Models
         public int PaperId { get; set; }
         [Required]
         [StringLength(200)]
+        [Display(Name = "English title")]
         public string TitleENG { get; set; }
         [Required]
         [StringLength(200)]
+        [Display(Name = "Title")]
         public string TitleORG { get; set; }
         [Required]
         [StringLength(200)]
@@ -24,14 +26,17 @@ namespace ConFutureNce.Models
         public string Abstract { get; set; }
         [Required]
         [StringLength(100)]
+        [Display(Name = "Organization's name")]
         public string OrgName { get; set; }
+        [Display(Name = "Submission date")]
         public DateTime SubmissionDate { get; set; }
         public ProcessStatus Status { get; set; }
+        [Display(Name = "File")]
         public byte[] PaperFile { get; set; }
         public int LanguageId { get; set; }
         public int AuthorId { get; set; }
         public int? ReviewerId { get; set; }
-
+        [Display(Name = "Keywords")]
         public ICollection<PaperKeyword> PaperKeywords { get; set; }
         [ForeignKey("LanguageId")]
         public Language Language { get; set; }

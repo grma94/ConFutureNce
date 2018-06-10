@@ -8,9 +8,11 @@ namespace ConFutureNce.Models
 {
     public class Author : UserType
     {
+        [Display(Name = "Scientific title")]
         [Required]
         [StringLength(10)]
         public string ScTitle { get; set; }
+        [Display(Name = "Ordanization's name")]
         [Required]
         [StringLength(100)]
         public string OrgName { get; set; }

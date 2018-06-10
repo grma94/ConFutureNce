@@ -9,7 +9,9 @@ namespace ConFutureNce.Models
 {
     public class Reviewer : UserType
     {
+        [Display(Name = "Scientific title")]
         public string ScTitle { get; set; }
+        [Display(Name = "Ordanization's name")]
         public string OrgName { get; set; }
         [Required]
         public int Language1Id { get; set; }
