@@ -47,12 +47,6 @@
             @Html.DisplayFor(model => model.SubmissionDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.PaperFile)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.PaperFile)
-        </dd>
-        <dt>
             @Html.DisplayNameFor(model => model.Author)
         </dt>
         <dd>
@@ -65,10 +59,10 @@
             @Html.DisplayFor(model => model.Language.LanguageName)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Reviewer)
+            @Html.DisplayNameFor(model => model.PaperFile)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Reviewer.ApplicationUser.Fullname)
+            @Html.ActionLink("Downlaod", "DownloadFile", new { id = Model.PaperId })
         </dd>
     </dl>
 </div>

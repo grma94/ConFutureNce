@@ -70,6 +70,13 @@
         <dd>
             @Html.DisplayFor(model => model.Reviewer.ApplicationUser.Fullname)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PaperFile)
+        </dt>
+        <dd>
+            @Html.ActionLink("Downlaod", "DownloadFile", new { id = Model.PaperId })
+        </dd>
+        
     </dl>
 </div>
 <div>

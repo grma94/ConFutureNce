@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Data.SqlClient;
 
 namespace ConFutureNce.Controllers
 {
@@ -366,5 +367,19 @@ namespace ConFutureNce.Controllers
 
             return papersToFilter;
         }
+
+        [HttpGet]
+        public FileContentResult DownloadFile(int id)
+        {
+            byte[] fileData;
+            string fileName;
+            var record = from p in _context.Paper
+                         where p.PaperId == id
+                         select p;
+            fileData = record.First().PaperFile.ToArray();
+            fileName = record.First().TitleORG + ".pdf";
+            return File(fileData, "application/pdf", fileName);
+        }
+
     }
 }
