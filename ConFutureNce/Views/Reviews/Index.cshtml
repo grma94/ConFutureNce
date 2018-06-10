@@ -7,7 +7,7 @@
 <h2>Index</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Add review</a>
 </p>
 <table class="table">
     <thead>
@@ -73,9 +73,7 @@
                 @Html.DisplayFor(modelItem => item.Paper.PaperId)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ReviewId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ReviewId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ReviewId">Delete</a>
+                <a asp-action="Details" asp-route-id="@item.ReviewId">Details</a>
             </td>
         </tr>
 }

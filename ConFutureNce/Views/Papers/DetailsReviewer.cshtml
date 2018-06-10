@@ -1,12 +1,11 @@
 ﻿@model ConFutureNce.Models.Paper
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "DetailsReviewer";
 }
 
-<h2>Delete</h2>
+<h2>Details</h2>
 
-<h3>Are you sure you want to delete this?</h3>
 <div>
     <h4>Paper</h4>
     <hr />
@@ -48,34 +47,26 @@
             @Html.DisplayFor(model => model.SubmissionDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.PaperFile)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.PaperFile)
-        </dd>
-        <dt>
             @Html.DisplayNameFor(model => model.Author)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Author.Discriminator)
+            @Html.DisplayFor(model => model.Author.ApplicationUser.Fullname)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Language)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Language.LanguageId)
+            @Html.DisplayFor(model => model.Language.LanguageName)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Reviewer)
+            @Html.DisplayNameFor(model => model.PaperFile)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Reviewer.Discriminator)
+            @Html.ActionLink("Downlaod", "DownloadFile", new { id = Model.PaperId })
         </dd>
     </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="PaperId" />
-        <input type="submit" value="Delete" class="btn btn-default" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a> |
+    <a asp-controller="Reviews" asp-route-id="@Model.PaperId" asp-action="Create">Add review</a>
 </div>

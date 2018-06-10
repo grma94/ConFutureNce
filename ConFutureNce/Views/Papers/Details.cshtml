@@ -47,10 +47,10 @@
             @Html.DisplayFor(model => model.SubmissionDate)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.PaperFile)
+            @Html.DisplayNameFor(model => model.PaperKeywords)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.PaperFile)
+            @Html.DisplayFor(model => model.KeywordsToString)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Author)
@@ -62,7 +62,7 @@
             @Html.DisplayNameFor(model => model.Language)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Language.LanguageId)
+            @Html.DisplayFor(model => model.Language.LanguageName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Reviewer)
@@ -70,9 +70,15 @@
         <dd>
             @Html.DisplayFor(model => model.Reviewer.ApplicationUser.Fullname)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PaperFile)
+        </dt>
+        <dd>
+            @Html.ActionLink("Downlaod", "DownloadFile", new { id = Model.PaperId })
+        </dd>
+        
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.PaperId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
