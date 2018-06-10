@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Data.SqlClient;
+using ConFutureNce.Models.PaperViewModel;
 
 namespace ConFutureNce.Controllers
 {
