@@ -156,11 +156,11 @@ namespace ConFutureNce.Controllers
                 using (var memoryStream = new MemoryStream())
                 {
                     await file.CopyToAsync(memoryStream);
-                    paper.PaperFile = memoryStream.ToArray();
+                    //paper.PaperFile = memoryStream.ToArray();
                 }
-                paper.SubmissionDate = DateTime.Now;
-                paper.Status = 0;
-                _context.Add(paper);
+                //paper.SubmissionDate = DateTime.Now;
+                //paper.Status = 0;
+                //_context.Add(paper);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -170,7 +170,7 @@ namespace ConFutureNce.Controllers
             ICollection<Author> authorsList = new List<Author>();
             authorsList = (from author in _context.Author select author).ToList();
             ViewBag.ListofAuthors = authorsList;
-            return View(paper);
+            return View(/*paper*/);
         }
 
         // GET: Papers/Edit/5

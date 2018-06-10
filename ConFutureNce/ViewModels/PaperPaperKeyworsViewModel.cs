@@ -34,7 +34,7 @@ namespace ConFutureNce.ViewModels
         public int AuthorId { get; set; }
 
         [Display(Name = "Keywords")]
-        public string PaperKeywords { get; set; }
+        public string PaperKeywordsString { get; set; }
         public Models.Language Language { get; set; }
 
     }
