@@ -104,7 +104,7 @@ namespace ConFutureNce.Controllers
                 }
             }
             
-            return View();
+            return View(papers);
         }
 
         // GET: Papers/Details/5

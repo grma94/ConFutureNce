@@ -6,6 +6,72 @@
 
 <h2>Index</h2>
 
-<p>
-    Sorry but you have no premmision to see the content.
-</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.TitleENG)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TitleORG)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Authors)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Abstract)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OrgName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SubmissionDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Reviewer)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TitleENG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TitleORG)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Authors)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Abstract)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OrgName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SubmissionDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author.ApplicationUser.Fullname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Reviewer.ApplicationUser.Fullname)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.PaperId">Details</a>
+        </tr>
+}
+    </tbody>
+</table>
