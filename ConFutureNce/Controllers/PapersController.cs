@@ -110,6 +110,7 @@ namespace ConFutureNce.Controllers
                 .Include(p => p.Language)
                 .Include(p => p.PaperKeywords)
                 .Include(p => p.Reviewer.ApplicationUser)
+                .Include(p => p.Review)
                 .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
