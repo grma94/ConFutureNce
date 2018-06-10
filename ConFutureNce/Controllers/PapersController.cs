@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using ConFutureNce.Models.PaperViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Data.SqlClient;
 
 namespace ConFutureNce.Controllers
 {
@@ -116,13 +117,21 @@ namespace ConFutureNce.Controllers
             }
 
             var paper = await _context.Paper
-                .Include(p => p.Author)
+                .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.Language)
-                .Include(p => p.Reviewer)
+                .Include(p => p.PaperKeywords)
+                .Include(p => p.Reviewer.ApplicationUser)
+                .Include(p => p.Review)
                 .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
                 return NotFound();
+            }
+
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser.Users.Any(p => p.GetType().ToString() == "ConFutureNce.Models.Reviewer"))
+            {
+                return View("DetailsReviewer", paper);
             }
 
             return View(paper);
@@ -134,11 +143,6 @@ namespace ConFutureNce.Controllers
             ICollection<Language> languageList = new List<Language>();
             languageList = (from language in _context.Language select language).ToList();
             ViewBag.ListofLanguages = languageList;
-            ICollection<Author> authorsList = new List<Author>();
-            authorsList = (from author in _context.Author select author).ToList();
-            ViewBag.ListofAuthors = authorsList;
-            //ViewBag.ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator");
-            //ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId");
             return View();
         }
 
@@ -147,10 +151,47 @@ namespace ConFutureNce.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId,AuthorId")] Paper paper, IFormFile file)
+        public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId,PaperKeywords")] ViewModels.PaperPaperKeyworsViewModel paperPaperKeyword, IFormFile file)
         {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+
+            user = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == user.Id);
             if (ModelState.IsValid)
             {
+                var paper = new Paper
+            {
+                Abstract = paperPaperKeyword.Abstract,
+                TitleENG = paperPaperKeyword.TitleENG,
+                TitleORG = paperPaperKeyword.TitleORG,
+                Authors = paperPaperKeyword.Authors,
+                OrgName = paperPaperKeyword.OrgName,
+                LanguageId = paperPaperKeyword.LanguageId
+            };
+
+            var userTypeId = user.Users.First().UserTypeId;
+            paper.AuthorId = userTypeId;
+            var paperKeywordsTableWithRepeats = paperPaperKeyword.PaperKeywords.Split(",");
+                for(int i=0; i<paperKeywordsTableWithRepeats.Length;i++ )
+                {
+                    paperKeywordsTableWithRepeats[i] = paperKeywordsTableWithRepeats[i].Trim();
+                }
+                paperKeywordsTableWithRepeats = paperKeywordsTableWithRepeats.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            var paperKeywordsTable = paperKeywordsTableWithRepeats.Distinct().ToArray();
+            List<PaperKeyword> ppk = new List<PaperKeyword>();
+
+            foreach (string keyword in paperKeywordsTable)
+            {
+                var paperKeywords = new PaperKeyword
+                {
+                    KeyWord = keyword,
+                    Paper = paper
+                };
+                ppk.Add(paperKeywords);
+            }
+            paper.PaperKeywords = ppk;
+
                 using (var memoryStream = new MemoryStream())
                 {
                     await file.CopyToAsync(memoryStream);
@@ -168,187 +209,9 @@ namespace ConFutureNce.Controllers
             ICollection<Author> authorsList = new List<Author>();
             authorsList = (from author in _context.Author select author).ToList();
             ViewBag.ListofAuthors = authorsList;
-            return View(paper);
+            return View(paperPaperKeyword);
         }
 
-        // GET: Papers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var paper = await _context.Paper.SingleOrDefaultAsync(m => m.PaperId == id);
-            if (paper == null)
-            {
-                return NotFound();
-            }
-            ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator", paper.AuthorId);
-            ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId", paper.LanguageId);
-            ViewData["ReviewerId"] = new SelectList(_context.Set<Reviewer>(), "UserTypeId", "Discriminator", paper.ReviewerId);
-            return View(paper);
-        }
-
-        // POST: Papers/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,SubmissionDate,PaperFile,LanguageId,AuthorId,ReviewerId")] Paper paper)
-        {
-            if (id != paper.PaperId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(paper);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PaperExists(paper.PaperId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["AuthorId"] = new SelectList(_context.Set<Author>(), "UserTypeId", "Discriminator", paper.AuthorId);
-            ViewData["LanguageId"] = new SelectList(_context.Set<Language>(), "LanguageId", "LanguageId", paper.LanguageId);
-            ViewData["ReviewerId"] = new SelectList(_context.Set<Reviewer>(), "UserTypeId", "Discriminator", paper.ReviewerId);
-            return View(paper);
-        }
-
-        // GET: Papers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var paper = await _context.Paper
-                .Include(p => p.Author)
-                .Include(p => p.Language)
-                .Include(p => p.Reviewer)
-                .SingleOrDefaultAsync(m => m.PaperId == id);
-            if (paper == null)
-            {
-                return NotFound();
-            }
-
-            return View(paper);
-        }
-
-        // POST: Papers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var paper = await _context.Paper.SingleOrDefaultAsync(m => m.PaperId == id);
-            _context.Paper.Remove(paper);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> AssignReviewer()
-        {
-            IEnumerable<Paper> model = _context.Paper
-                .Include(p => p.Author.ApplicationUser)
-                .Include(p => p.PaperKeywords)
-                .Include(p => p.Reviewer.ApplicationUser)
-                .Include(p => p.Language.ReviewersFirst)
-                .Include(p => p.Language.ReviewersSecond)
-                .Include(p => p.Language.ReviewersThird);
-
-
-            model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
-
-            // SelectList data preparation
-            var papersLanguage = model
-                .GroupBy(p => p.LanguageId)
-                .Select(p => p.First())
-                .Select(p => new
-                {
-                    langId = p.LanguageId,
-                    reviewerslist = p.Language.AllReviewers
-                })
-                .OrderBy(pl => pl.langId);
-
-            var Vmodel = new List<AssignReviewerViewModel>();
-            var reviewers = _context.ApplicationUser;
-            foreach (var language in papersLanguage)
-            {
-               var tempList = language.reviewerslist
-                   .Select(r => new ReviewerVM
-                   {
-                        ReviewerId = r.UserTypeId,
-                        ReviewerName = reviewers.First(au => au.Id == r.ApplicationUserId).Fullname
-                    })
-                   .ToList();
-                tempList.Insert(0, new ReviewerVM
-                {
-                    ReviewerId = -1,
-                    ReviewerName = "SELECT REVIEWER"
-                });
-                Vmodel.Add(new AssignReviewerViewModel
-                {
-                    LangId = language.langId,
-                    reviewersPerLang = tempList
-                });
-            }
-
-            ViewBag.listOfReviewers = Vmodel;
-
-            return View(model);
-        }
-
-        // POST: PAPERS/ASSIGNREVIEWER
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignReviewer(IFormCollection form)
-        {
-            if (ModelState.IsValid)
-            {
-                var assignedReviewers = Request.Form["item.ReviewerId"];
-                var papersToAssign = Request.Form["item.PaperId"];
-
-                var papers = _context.Paper
-                    .Where(p => p.ReviewerId == null);
-
-                for (var i = 0; i < papersToAssign.Count; i++)
-                {
-                    if (assignedReviewers[i] == "-1")
-                        continue;
-
-                    var paper = await _context.Paper
-                        .FirstAsync(p => p.PaperId == Convert.ToInt32(papersToAssign[i]));
-
-                    paper.ReviewerId = Convert.ToInt32(assignedReviewers[i]);
-                    paper.Status = Paper.ProcessStatus.UnderReview;
-                }
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View();
-        }
-
-        private bool PaperExists(int id)
-        {
-            return _context.Paper.Any(e => e.PaperId == id);
-        }
         // Need loaded Authors and Reviever object with their ApplicationUser objects
         private IEnumerable<Paper> SortPapers(IEnumerable<Paper> papersToSort, string sortOrder)
 
@@ -428,5 +291,19 @@ namespace ConFutureNce.Controllers
 
             return papersToFilter;
         }
+
+        [HttpGet]
+        public FileContentResult DownloadFile(int id)
+        {
+            byte[] fileData;
+            string fileName;
+            var record = from p in _context.Paper
+                         where p.PaperId == id
+                         select p;
+            fileData = record.First().PaperFile.ToArray();
+            fileName = record.First().TitleORG + ".pdf";
+            return File(fileData, "application/pdf", fileName);
+        }
+
     }
 }
