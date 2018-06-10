@@ -6,23 +6,55 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ConFutureNce.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace ConFutureNce.Controllers
 {
     public class ReviewsController : Controller
     {
         private readonly ConFutureNceContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ReviewsController(ConFutureNceContext context)
+        public ReviewsController(ConFutureNceContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Reviews
         public async Task<IActionResult> Index()
         {
             var conFutureNceContext = _context.Review.Include(r => r.Paper);
-            return View(await conFutureNceContext.ToListAsync());
+
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            var reviews = _context.Review
+                .Include(p => p.Paper);
+
+            foreach (var userType in currentUser.Users)
+            {
+                switch (userType.GetType().ToString())
+                {
+                    case "ConFutureNce.Models.Reviewer":
+                        {
+                            var reviewerId = userType.UserTypeId;
+                            IEnumerable<Review> model = reviews
+                                .Where(p => p.Paper.ReviewerId == reviewerId)
+                                .OrderBy(p => p.Grade);
+
+                            return View("IndexReviewer", model);
+                        }
+                    case "ConFutureNce.Models.ProgrammeCommitteeMember":
+                        {
+                            return View("IndexPCM", await conFutureNceContext.ToListAsync());
+                        }
+                }
+            }
+
+            return View("AccessDenied");
         }
 
         // GET: Reviews/Details/5
