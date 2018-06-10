@@ -28,7 +28,6 @@ namespace ConFutureNce.ViewModels
         [Display(Name = "Organization's name")]
         public string OrgName { get; set; }
         public DateTime SubmissionDate { get; set; }
-        [Required]
         [Display(Name = "File")]
         public byte[] PaperFile { get; set; }
         public int LanguageId { get; set; }
