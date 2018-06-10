@@ -312,6 +312,39 @@ namespace ConFutureNce.Controllers
             return View(model);
         }
 
+        // POST: PAPERS/ASSIGNREVIEWER
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignReviewer(IFormCollection form)
+        {
+            if (ModelState.IsValid)
+            {
+                var assignedReviewers = Request.Form["item.ReviewerId"];
+                var papersToAssign = Request.Form["item.PaperId"];
+
+                var papers = _context.Paper
+                    .Where(p => p.ReviewerId == null);
+
+                for (var i = 0; i < papersToAssign.Count; i++)
+                {
+                    if (assignedReviewers[i] == "-1")
+                        continue;
+
+                    var paper = await _context.Paper
+                        .FirstAsync(p => p.PaperId == Convert.ToInt32(papersToAssign[i]));
+
+                    paper.ReviewerId = Convert.ToInt32(assignedReviewers[i]);
+                    paper.Status = Paper.ProcessStatus.UnderReview;
+                }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View();
+        }
+
         private bool PaperExists(int id)
         {
             return _context.Paper.Any(e => e.PaperId == id);
