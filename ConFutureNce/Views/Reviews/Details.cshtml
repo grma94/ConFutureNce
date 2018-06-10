@@ -6,66 +6,8 @@
 
 <h2>Details</h2>
 
-<div>
-    <h4>Review</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Problems)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Problems)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.WhyProblems)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.WhyProblems)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Solution)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Solution)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Achievements)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Achievements)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.NotMentioned)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.NotMentioned)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Grade)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Grade)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.GeneralComments)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.GeneralComments)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Date)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Date)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Paper)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Paper.PaperId)
-        </dd>
-    </dl>
-</div>
+@Html.Partial("DetailsPartial")
+
 <div>
     <a asp-action="Index">Back to List</a>
 </div>

@@ -118,7 +118,9 @@ namespace ConFutureNce.Controllers
             var paper = await _context.Paper
                 .Include(p => p.Author)
                 .Include(p => p.Language)
-                .Include(p => p.Reviewer)
+                .Include(p => p.PaperKeywords)
+                .Include(p => p.Reviewer.ApplicationUser)
+                .Include(p => p.Review)
                 .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
