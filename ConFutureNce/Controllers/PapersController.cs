@@ -53,7 +53,8 @@ namespace ConFutureNce.Controllers
             var papers = _context.Paper
                 .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.PaperKeywords)
-                .Include(p => p.Reviewer.ApplicationUser);
+                .Include(p => p.Reviewer.ApplicationUser)
+                .Include(p => p.Payment);
 
 
             currentUser = _context.ApplicationUser
@@ -72,6 +73,11 @@ namespace ConFutureNce.Controllers
                         IEnumerable<Paper> model = papers
                             .Where(p => p.AuthorId == authorId)
                             .OrderBy(p => p.TitleENG);
+
+                        // Delete unpaid papers
+                        var toDelete = model.Where(p => p.Payment == null);
+                        _context.Paper.RemoveRange(toDelete);
+                        await _context.SaveChangesAsync();
 
                         model = SearchPapers(model, searchString);
                         model = SortPapers(model,sortOrder);
