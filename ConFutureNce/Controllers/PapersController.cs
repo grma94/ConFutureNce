@@ -53,7 +53,8 @@ namespace ConFutureNce.Controllers
             var papers = _context.Paper
                 .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.PaperKeywords)
-                .Include(p => p.Reviewer.ApplicationUser);
+                .Include(p => p.Reviewer.ApplicationUser)
+                .Include(p => p.Payment);
 
 
             currentUser = _context.ApplicationUser
@@ -73,9 +74,14 @@ namespace ConFutureNce.Controllers
                                 .Where(p => p.AuthorId == authorId)
                                 .OrderBy(p => p.TitleENG);
 
-                            model = SearchPapers(model, searchString);
-                            model = SortPapers(model, sortOrder);
-                            model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
+                        // Delete unpaid papers
+                        var toDelete = model.Where(p => p.Payment == null);
+                        _context.Paper.RemoveRange(toDelete);
+                        await _context.SaveChangesAsync();
+
+                        model = SearchPapers(model, searchString);
+                        model = SortPapers(model,sortOrder);
+                        model = PaginatedList<Paper>.Create( model, page ?? 1, pageSize);
 
 
                             return View("Author", (PaginatedList<Paper>)model);
@@ -102,8 +108,8 @@ namespace ConFutureNce.Controllers
                             model = SortPapers(model, sortOrder);
                             model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
 
-                            return View("ProgrammeCommitteeMember", (PaginatedList<Paper>)model);
-                        }
+                            return View("ProgrammeCommitteeMember", (PaginatedList<Paper>) model);
+                    }
                 }
             }
 
@@ -250,9 +256,9 @@ namespace ConFutureNce.Controllers
             var reviewers = _context.ApplicationUser;
             foreach (var language in papersLanguage)
             {
-                var tempList = language.reviewerslist
-                    .Select(r => new ReviewerVM
-                    {
+               var tempList = language.reviewerslist
+                   .Select(r => new ReviewerVM
+                   {
                         ReviewerId = r.UserTypeId,
                         ReviewerName = reviewers.First(au => au.Id == r.ApplicationUserId).Fullname
                     })

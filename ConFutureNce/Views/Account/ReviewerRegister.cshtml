@@ -1,4 +1,4 @@
-﻿@model RegisterViewModel
+﻿@model RegisterReviewerViewModel
 @{
     ViewData["Title"] = "Register";
 }
@@ -45,6 +45,18 @@
                 <label asp-for="ScTitle"></label>
                 <input asp-for="ScTitle" class="form-control" />
                 <span asp-validation-for="ScTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Language1Id" class="control-label">Language</label>
+                <select asp-for="Language1Id" class="form-control" asp-items="@(new SelectList(@ViewBag.ListofLanguages, "LanguageId", "LanguageName"))"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Language2Id" class="control-label">Language 2</label>
+                <select asp-for="Language2Id" class="form-control" asp-items="@(new SelectList(@ViewBag.ListofLanguages, "LanguageId", "LanguageName"))"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Language3Id" class="control-label">Language 3</label>
+                <select asp-for="Language3Id" class="form-control" asp-items="@(new SelectList(@ViewBag.ListofLanguages, "LanguageId", "LanguageName"))"></select>
             </div>
             <button type="submit" class="btn btn-default">Register</button>
         </form>

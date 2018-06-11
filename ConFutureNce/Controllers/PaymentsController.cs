@@ -34,7 +34,7 @@ namespace ConFutureNce.Controllers
             var error = (new Random().Next(1, 9)) > 7;
             var paperId = Convert.ToInt32(Request.Form["PaperId"]);
 
-            if (/*!error*/ false)
+            if (!error )
             {
                 var billingAddress = Request.Form["BillingAddress"];
                 var userName = Request.Form["UserName"];
@@ -68,7 +68,7 @@ namespace ConFutureNce.Controllers
 
             _context.Paper.Remove(paper);
             _context.SaveChanges();
-            return RedirectToAction("Index", "Papers");
+            return RedirectToAction("PaymentError");
             
         }
         // GET: Payments

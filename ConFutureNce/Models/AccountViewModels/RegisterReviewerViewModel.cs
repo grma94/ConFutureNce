@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ConFutureNce.Models.AccountViewModels
 {
-    public class RegisterViewModel
+    public class RegisterReviewerViewModel
     {
         [Required]
         [EmailAddress]
@@ -32,13 +32,17 @@ namespace ConFutureNce.Models.AccountViewModels
         [Display(Name = "Surname")]
         public string Surname { get; set; }
 
-
         [Display(Name = "Oranization's name")]
         public string OrgName { get; set; }
 
         [Display(Name = "Scientific title")]
         public string ScTitle { get; set; }
 
-
+        [Display(Name = "Language 1")]
+        public int Language1Id { get; set; }
+        [Display(Name = "Language 2")]
+        public int? Language2Id { get; set; }
+        [Display(Name = "Language 1")]
+        public int? Language3Id { get; set; }
     }
 }

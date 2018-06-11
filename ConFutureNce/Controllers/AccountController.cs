@@ -226,6 +226,9 @@ namespace ConFutureNce.Controllers
                 var cName = _context.Conference.First().Name;
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email, ConferenceName = cName, Name = model.Name, Surname = model.Surname };
                 var result = await _userManager.CreateAsync(user, model.Password);
+                var userType = new Author { OrgName = model.OrgName, ScTitle = model.ScTitle, ApplicationUserId = user.Id };
+                _context.Add(userType);
+                await _context.SaveChangesAsync();
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
@@ -244,6 +247,114 @@ namespace ConFutureNce.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ReviewerRegister(string returnUrl = null)
+        {
+            List<Language> languageList = new List<Language>();
+            languageList = (from language in _context.Language select language).ToList();
+            var nullLanguage = new Language();
+            languageList.Insert(0, nullLanguage);
+            ViewBag.ListofLanguages = languageList;
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReviewerRegister(RegisterReviewerViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (model.Language1Id != 0)
+            {
+                if (ModelState.IsValid)
+                {
+                    if (model.Language2Id == 0)
+                    {
+                        model.Language2Id = null;
+                    }
+                    if (model.Language3Id == 0)
+                    {
+                        model.Language3Id = null;
+                    }
+                    var cName = _context.Conference.First().Name;
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, ConferenceName = cName, Name = model.Name, Surname = model.Surname };
+                    var result = await _userManager.CreateAsync(user, model.Password);
+                    var userType = new Reviewer { OrgName = model.OrgName, ScTitle = model.ScTitle, ApplicationUserId = user.Id, Language1Id = model.Language1Id, Language2Id = model.Language2Id, Language3Id = model.Language3Id };
+                    _context.Add(userType);
+                    await _context.SaveChangesAsync();
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User created a new account with password.");
+
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+                        await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        _logger.LogInformation("User created a new account with password.");
+                        return RedirectToLocal(returnUrl);
+                    }
+                    AddErrors(result);
+                }
+            }
+
+            // If we got this far, something failed, redisplay form
+            List<Language> languageList = new List<Language>();
+            languageList = (from language in _context.Language select language).ToList();
+            var nullLanguage = new Language();
+            languageList.Insert(0, nullLanguage);
+            ViewBag.ListofLanguages = languageList;
+            return View(model);
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult PCMRegister(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View("PCMRegister");
+        }
+
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PCMRegister(PCMRegisterViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
+                var cName = _context.Conference.First().Name;
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, ConferenceName = cName, Name = model.Name, Surname = model.Surname };
+                var result = await _userManager.CreateAsync(user, model.Password);
+                var userType = new ProgrammeCommitteeMember { EmployeePosition = model.EmpPosition, ApplicationUserId = user.Id };
+                _context.Add(userType);
+                await _context.SaveChangesAsync();
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User created a new account with password.");
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+                    await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    _logger.LogInformation("User created a new account with password.");
+                    return RedirectToLocal(returnUrl);
+                }
+                AddErrors(result);
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
