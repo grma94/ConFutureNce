@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ConFutureNce.Models;
+using ConFutureNce.Models.PaperViewModel;
+using Microsoft.AspNetCore.Http;
 
 namespace ConFutureNce.Controllers
 {
@@ -19,10 +21,21 @@ namespace ConFutureNce.Controllers
         }
 
         // GET: Payments
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(PaymentViewModel payment)
         {
-            var conFutureNceContext = _context.Payment.Include(p => p.Paper);
-            return View(await conFutureNceContext.ToListAsync());
+            return View(payment);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Index(IFormCollection form)
+        {
+            var paperId = Convert.ToInt32(Request.Form["PaperId"]);
+            var paper = await _context.Paper.FirstAsync(p => p.PaperId == paperId);
+
+            _context.Paper.Remove(paper);
+
+            return RedirectToAction("Index", "Papers");
         }
 
         // GET: Payments/Details/5
