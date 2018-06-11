@@ -30,7 +30,7 @@ namespace ConFutureNce.Controllers
 
         // GET: Papers
         [Authorize]
-        public async Task<IActionResult> Index(string sortOrder,string searchString, string currentFilter, int? page)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, string currentFilter, int? page)
         {
             // Sorting properties
             ViewData["TitleENGSortParam"] = String.IsNullOrEmpty(sortOrder) ? "TitleENGDesc" : "";
@@ -47,9 +47,9 @@ namespace ConFutureNce.Controllers
             int pageSize = 10;
             // Searching propertie
             ViewData["CurrentFilter"] = searchString;
-            
+
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            
+
             var papers = _context.Paper
                 .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.PaperKeywords)
@@ -66,47 +66,47 @@ namespace ConFutureNce.Controllers
                 switch (userType.GetType().ToString())
                 {
                     case "ConFutureNce.Models.Author":
-                    {
-                        var authorId = userType.UserTypeId;
+                        {
+                            var authorId = userType.UserTypeId;
 
-                        IEnumerable<Paper> model = papers
-                            .Where(p => p.AuthorId == authorId)
-                            .OrderBy(p => p.TitleENG);
+                            IEnumerable<Paper> model = papers
+                                .Where(p => p.AuthorId == authorId)
+                                .OrderBy(p => p.TitleENG);
 
-                        model = SearchPapers(model, searchString);
-                        model = SortPapers(model,sortOrder);
-                        model = PaginatedList<Paper>.Create( model, page ?? 1, pageSize);
+                            model = SearchPapers(model, searchString);
+                            model = SortPapers(model, sortOrder);
+                            model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
 
 
-                        return View("Author", (PaginatedList<Paper>) model);
-                    }
+                            return View("Author", (PaginatedList<Paper>)model);
+                        }
                     case "ConFutureNce.Models.Reviewer":
-                    {
-                        var reviewerId = userType.UserTypeId;
-                        IEnumerable<Paper> model = papers
-                            .Where(p => p.ReviewerId == reviewerId)
-                            .OrderBy(p => p.TitleENG);
+                        {
+                            var reviewerId = userType.UserTypeId;
+                            IEnumerable<Paper> model = papers
+                                .Where(p => p.ReviewerId == reviewerId)
+                                .OrderBy(p => p.TitleENG);
 
-                        model = SearchPapers(model, searchString);
-                        model = SortPapers(model, sortOrder);
-                        model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
+                            model = SearchPapers(model, searchString);
+                            model = SortPapers(model, sortOrder);
+                            model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
 
-                            return View("Reviewer", (PaginatedList<Paper>) model);
-                    }
+                            return View("Reviewer", (PaginatedList<Paper>)model);
+                        }
                     case "ConFutureNce.Models.ProgrammeCommitteeMember":
-                    {
-                        IEnumerable<Paper> model =  papers
-                            .OrderBy(p => p.TitleENG);
+                        {
+                            IEnumerable<Paper> model = papers
+                                .OrderBy(p => p.TitleENG);
 
-                        model = SearchPapers(model, searchString);
-                        model = SortPapers(model, sortOrder);
-                        model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
+                            model = SearchPapers(model, searchString);
+                            model = SortPapers(model, sortOrder);
+                            model = PaginatedList<Paper>.Create(model, page ?? 1, pageSize);
 
-                            return View("ProgrammeCommitteeMember", (PaginatedList<Paper>) model);
-                    }
+                            return View("ProgrammeCommitteeMember", (PaginatedList<Paper>)model);
+                        }
                 }
             }
-            
+
             return View(papers);
         }
 
@@ -163,40 +163,42 @@ namespace ConFutureNce.Controllers
             user = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == user.Id);
-            if (ModelState.IsValid & file!=null)
+            if (ModelState.IsValid & file != null)
             {
                 var paper = new Paper
-            {
-                Abstract = paperPaperKeyword.Abstract,
-                TitleENG = paperPaperKeyword.TitleENG,
-                TitleORG = paperPaperKeyword.TitleORG,
-                Authors = paperPaperKeyword.Authors,
-                OrgName = paperPaperKeyword.OrgName,
-                LanguageId = paperPaperKeyword.LanguageId
-            };
-
-            var userTypeId = user.Users.First().UserTypeId;
-            paper.AuthorId = userTypeId;
-            var paperKeywordsTableWithRepeats = paperPaperKeyword.PaperKeywords.Split(",");
-                for(int i=0; i<paperKeywordsTableWithRepeats.Length;i++ )
                 {
-                    paperKeywordsTableWithRepeats[i] = paperKeywordsTableWithRepeats[i].Trim();
-                }
-                paperKeywordsTableWithRepeats = paperKeywordsTableWithRepeats.Where(x => !string.IsNullOrEmpty(x)).ToArray();
-            var paperKeywordsTable = paperKeywordsTableWithRepeats.Distinct().ToArray();
-            List<PaperKeyword> ppk = new List<PaperKeyword>();
-
-            foreach (string keyword in paperKeywordsTable)
-            {
-                var paperKeywords = new PaperKeyword
-                {
-                    KeyWord = keyword,
-                    Paper = paper
+                    Abstract = paperPaperKeyword.Abstract,
+                    TitleENG = paperPaperKeyword.TitleENG,
+                    TitleORG = paperPaperKeyword.TitleORG,
+                    Authors = paperPaperKeyword.Authors,
+                    OrgName = paperPaperKeyword.OrgName,
+                    LanguageId = paperPaperKeyword.LanguageId
                 };
-                ppk.Add(paperKeywords);
-            }
-            paper.PaperKeywords = ppk;
 
+                var userTypeId = user.Users.First().UserTypeId;
+                paper.AuthorId = userTypeId;
+                if (paperPaperKeyword.PaperKeywords != null)
+                {
+                    var paperKeywordsTableWithRepeats = paperPaperKeyword.PaperKeywords.Split(",");
+                    for (int i = 0; i < paperKeywordsTableWithRepeats.Length; i++)
+                    {
+                        paperKeywordsTableWithRepeats[i] = paperKeywordsTableWithRepeats[i].Trim();
+                    }
+                    paperKeywordsTableWithRepeats = paperKeywordsTableWithRepeats.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                    var paperKeywordsTable = paperKeywordsTableWithRepeats.Distinct().ToArray();
+                    List<PaperKeyword> ppk = new List<PaperKeyword>();
+
+                    foreach (string keyword in paperKeywordsTable)
+                    {
+                        var paperKeywords = new PaperKeyword
+                        {
+                            KeyWord = keyword,
+                            Paper = paper
+                        };
+                        ppk.Add(paperKeywords);
+                    }
+                    paper.PaperKeywords = ppk;
+                }
                 using (var memoryStream = new MemoryStream())
                 {
                     await file.CopyToAsync(memoryStream);
@@ -245,13 +247,13 @@ namespace ConFutureNce.Controllers
             var reviewers = _context.ApplicationUser;
             foreach (var language in papersLanguage)
             {
-               var tempList = language.reviewerslist
-                   .Select(r => new ReviewerVM
-                   {
+                var tempList = language.reviewerslist
+                    .Select(r => new ReviewerVM
+                    {
                         ReviewerId = r.UserTypeId,
                         ReviewerName = reviewers.First(au => au.Id == r.ApplicationUserId).Fullname
                     })
-                   .ToList();
+                    .ToList();
                 tempList.Insert(0, new ReviewerVM
                 {
                     ReviewerId = -1,
@@ -314,58 +316,58 @@ namespace ConFutureNce.Controllers
             switch (sortOrder)
             {
                 case "TitleENGDesc":
-                {
-                    papersToSort = papersToSort.OrderByDescending(p => p.TitleENG);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort.OrderByDescending(p => p.TitleENG);
+                        break;
+                    }
                 case "AuthorDesc":
-                {
-                    papersToSort = papersToSort.OrderByDescending(p => p.Author.ApplicationUser.Fullname);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort.OrderByDescending(p => p.Author.ApplicationUser.Fullname);
+                        break;
+                    }
                 case "AuthorAsc":
-                {
-                    papersToSort = papersToSort.OrderBy(p => p.Author.ApplicationUser.Fullname);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort.OrderBy(p => p.Author.ApplicationUser.Fullname);
+                        break;
+                    }
                 case "AuthorsDesc":
-                {
-                    papersToSort = papersToSort.OrderByDescending(p => p.Authors);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort.OrderByDescending(p => p.Authors);
+                        break;
+                    }
                 case "AuthorsAsc":
-                {
-                    papersToSort = papersToSort.OrderBy(p => p.Authors);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort.OrderBy(p => p.Authors);
+                        break;
+                    }
                 case "ReviewerDesc":
-                {
-                    papersToSort = papersToSort
-                        .OrderByDescending(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort
+                            .OrderByDescending(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
+                        break;
+                    }
                 case "ReviewerAsc":
-                {
-                    papersToSort = papersToSort
-                        .OrderBy(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort
+                            .OrderBy(p => p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty);
+                        break;
+                    }
                 case "StatusDesc":
-                {
-                    papersToSort = papersToSort.OrderByDescending(p => p.Status);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort.OrderByDescending(p => p.Status);
+                        break;
+                    }
                 case "StatusAsc":
-                {
-                    papersToSort = papersToSort.OrderBy(p => p.Status);
-                    break;
-                }
+                    {
+                        papersToSort = papersToSort.OrderBy(p => p.Status);
+                        break;
+                    }
                 default:
-                {
-                    papersToSort = papersToSort.OrderBy(p => p.TitleENG);
-                    break;
-                }
-                    
+                    {
+                        papersToSort = papersToSort.OrderBy(p => p.TitleENG);
+                        break;
+                    }
+
             }
 
             return papersToSort;
