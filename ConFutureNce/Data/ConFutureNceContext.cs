@@ -35,6 +35,7 @@ namespace ConFutureNce.Models
         public DbSet<ProgrammeCommitteeMember> ProgrammeCommitteeMember { get; set; }
 
         public DbSet<Organizer> Organizer { get; set; }
+        public DbSet<Invoice> Invoice { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
