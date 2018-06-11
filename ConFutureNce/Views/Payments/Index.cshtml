@@ -1,39 +1,33 @@
-﻿@model IEnumerable<ConFutureNce.Models.Payment>
-
+﻿@model ConFutureNce.Models.PaperViewModel.PaymentViewModel
 @{
+    Layout = null;
     ViewData["Title"] = "Index";
 }
 
-<h2>Index</h2>
+<h2>PaymentSystem</h2>
+<hr />
+<h4>Account belogs to</h4>
+<h2>@Html.DisplayFor(model => model.User)</h2>
+<hr />
+<h2>Your payment is ready.</h2>
+<div class="row container-fluid">
+    <form class ="col-md-4">
+        <button asp-action="Index" asp-controller="Papers" class="btn btn-success">Confirm payment</button>
+    </form>
+    <div class="col-md-4">
+        <form method="post" enctype="multipart/form-data" asp-action="Index">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input type="hidden" asp-for="PaperId" class="form-control" />
+                <span asp-validation-for="PaperId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Deny payment" class="btn btn-danger" />
+            </div>
+        </form>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.IsDone)
-                </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Paper)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsDone)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Paper.PaperId)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.PaymentId">Details</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    </div>
+</div>
+
+
+

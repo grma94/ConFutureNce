@@ -206,7 +206,7 @@ namespace ConFutureNce.Controllers
                 paper.Status = 0;
                 _context.Add(paper);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Payments", new PaymentViewModel {User = user.Fullname, PaperId = paper.PaperId});
             }
             ICollection<Language> languageList = new List<Language>();
             languageList = (from language in _context.Language select language).ToList();
