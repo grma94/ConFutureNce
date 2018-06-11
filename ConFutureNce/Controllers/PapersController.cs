@@ -163,7 +163,7 @@ namespace ConFutureNce.Controllers
             user = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == user.Id);
-            if (ModelState.IsValid)
+            if (ModelState.IsValid & file!=null)
             {
                 var paper = new Paper
             {
@@ -211,9 +211,6 @@ namespace ConFutureNce.Controllers
             ICollection<Language> languageList = new List<Language>();
             languageList = (from language in _context.Language select language).ToList();
             ViewBag.ListofLanguages = languageList;
-            ICollection<Author> authorsList = new List<Author>();
-            authorsList = (from author in _context.Author select author).ToList();
-            ViewBag.ListofAuthors = authorsList;
             return View(paperPaperKeyword);
         }
 
