@@ -6,20 +6,27 @@
 
 <h2>Submitted papers</h2>
 
-<div class="row">
-    <div class="col-md-8 col-xs-8">
-        <form asp-action="Index" method="get">
-            <div class="form-actions on-color">
-                <p>
-                    Find: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
-                    <input type="submit" value="Search" class="btn btn-default" /> |
-                    <a asp-action="Index">Back to Full List</a>
-                </p>
-            </div>
-        </form>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 col-xs-6">
+            <form asp-action="Index" method="get">
+                <div class="form-actions on-color">
+                    <p>
+                        Find: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                        <input type="submit" value="Search" class="btn btn-default" /> |
+                        <a asp-action="Index">Back to Full List</a>
+                    </p>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="col-md-offset-8 col-xs-offset-8">
-        <a asp-action="AssignReviewer" class="btn btn-default">Assign Reviewers</a>
+    <div class="row">
+        <div class="col-md-3 col-md-offset-6 ">
+            <a asp-action="AssignReviewer" class="btn btn-default">Assign Reviewers</a>
+        </div>
+        <div class="col-md-2 ">
+            <a asp-action="ChoosePaper" class="btn btn-default">Qualifie Paper</a>
+        </div>
     </div>
 </div>
 

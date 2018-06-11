@@ -311,6 +311,71 @@ namespace ConFutureNce.Controllers
             return View();
         }
 
+        [Authorize]
+        public async Task<IActionResult> ChoosePaper()
+        {
+            IEnumerable<Paper> model = _context.Paper
+                .Include(p => p.Author.ApplicationUser)
+                .Include(p => p.PaperKeywords)
+                .Include(p => p.Reviewer.ApplicationUser);
+                
+            model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
+
+            // SelectList data preparation
+            var statusList = new List<Language>
+            {
+                new Language
+                {
+                    LanguageId = Convert.ToInt32(Paper.ProcessStatus.Qualified),
+                    LanguageName = "Qualified"
+                },
+                new Language
+                {
+                    LanguageId = Convert.ToInt32(Paper.ProcessStatus.Unqualified),
+                    LanguageName = "Unqualified"
+                }
+            };
+
+            statusList.Insert(0, new Language{LanguageId = -1, LanguageName = "Select"});
+            
+            ViewBag.listOfStatus = statusList;
+
+            return View(model);
+        }
+
+        // POST: PAPERS/ASSIGNREVIEWER
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChoosePaper(IFormCollection form)
+        {
+            if (ModelState.IsValid)
+            {
+                var assignedStatuses = Request.Form["item.Status"];
+                var papersToAssign = Request.Form["item.PaperId"];
+
+                var papers = _context.Paper
+                    .Where(p => p.Status == Paper.ProcessStatus.Reviewed);
+
+                for (var i = 0; i < papersToAssign.Count; i++)
+                {
+                    if (assignedStatuses[i] == "-1")
+                        continue;
+
+                    var paper = await _context.Paper
+                        .FirstAsync(p => p.PaperId == Convert.ToInt32(papersToAssign[i]));
+
+                    paper.Status = (Paper.ProcessStatus)Convert.ToInt32(assignedStatuses[i]);
+                }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View();
+        }
+
         private bool PaperExists(int id)
         {
             return _context.Paper.Any(e => e.PaperId == id);
