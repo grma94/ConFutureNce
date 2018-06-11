@@ -7,26 +7,23 @@
 <h2>PaymentSystem</h2>
 <hr />
 <h4>Account belogs to</h4>
-<h2>@Html.DisplayFor(model => model.User)</h2>
+<h2>@Html.DisplayFor(model => model.UserName)</h2>
 <hr />
-<h2>Your payment is ready.</h2>
+<h2>Please provide Tax Number.</h2>
 <div class="row container-fluid">
-    <form class ="col-md-4">
-        <button asp-action="Index" asp-controller="Papers" class="btn btn-success">Confirm payment</button>
+    <form method="post" enctype="multipart/form-data" asp-action="Index">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="UserName" class="form-control" />
+        <input type="hidden" asp-for="PaperId" class="form-control" />
+        <input type="hidden" asp-for="BillingAddress" class="form-control" />
+        <div class="form-group">
+            <input asp-for="TaxNumber" class="form-control" />
+            <span asp-validation-for="TaxNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Confirm Payment" class="btn btn-danger" />
+        </div>
     </form>
-    <div class="col-md-4">
-        <form method="post" enctype="multipart/form-data" asp-action="Index">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <input type="hidden" asp-for="PaperId" class="form-control" />
-                <span asp-validation-for="PaperId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Deny payment" class="btn btn-danger" />
-            </div>
-        </form>
-
-    </div>
 </div>
 
 

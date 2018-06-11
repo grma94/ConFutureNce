@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -30,12 +31,50 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(IFormCollection form)
         {
+            var error = (new Random().Next(1, 9)) > 7;
             var paperId = Convert.ToInt32(Request.Form["PaperId"]);
+
+            if (/*!error*/ false)
+            {
+                var billingAddress = Request.Form["BillingAddress"];
+                var userName = Request.Form["UserName"];
+                var taxNumber = Request.Form["TaxNumber"];
+
+                // Create payment
+                var payment = new Payment
+                {
+                    IsDone = false
+                };
+                // Create invoice
+                var invoice = new Invoice
+                {
+                    Name = userName,
+                    BillingAddress = billingAddress,
+                    TaxNumber = taxNumber,
+                    Payment = payment
+                };
+                // Upadete payment
+                payment.Invoice = invoice;
+                payment.PaperId = paperId;
+                payment.IsDone = true;
+
+                _context.Invoice.Add(invoice);
+                _context.Payment.Add(payment);
+                _context.SaveChanges();
+                return RedirectToAction("Index", "Papers");
+
+            }
             var paper = await _context.Paper.FirstAsync(p => p.PaperId == paperId);
 
             _context.Paper.Remove(paper);
-
+            _context.SaveChanges();
             return RedirectToAction("Index", "Papers");
+            
+        }
+        // GET: Payments
+        public async Task<IActionResult> PaymentError()
+        {
+            return View();
         }
 
         // GET: Payments/Details/5

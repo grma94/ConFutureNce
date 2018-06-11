@@ -44,7 +44,7 @@ namespace ConFutureNce.Controllers
                 page = 1;
             else
                 searchString = currentFilter;
-            int pageSize = 3;
+            int pageSize = 10;
             // Searching propertie
             ViewData["CurrentFilter"] = searchString;
 
@@ -208,7 +208,9 @@ namespace ConFutureNce.Controllers
                 paper.Status = 0;
                 _context.Add(paper);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index", "Payments", new PaymentViewModel { User = user.Fullname, PaperId = paper.PaperId });
+                return RedirectToAction("Index", "Payments", new PaymentViewModel {UserName = user.Fullname,
+                                                                                    BillingAddress = user.Address,
+                                                                                    PaperId = paper.PaperId});
             }
             ICollection<Language> languageList = new List<Language>();
             languageList = (from language in _context.Language select language).ToList();
