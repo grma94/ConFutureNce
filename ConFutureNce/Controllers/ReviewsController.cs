@@ -82,11 +82,16 @@ namespace ConFutureNce.Controllers
         // GET: Reviews/Create
         public IActionResult Create(int id)
         {
+            var test = _context.Review.First(r=>r.PaperId==id);
+            if (_context.Review.First(r => r.PaperId == id) == null)
+            { 
             var review = new Review
             {
                 PaperId = id
             };
             return View(review);
+            }
+            return RedirectToAction("Details", "Papers", new { id });
         }
 
         // POST: Reviews/Create
@@ -99,6 +104,7 @@ namespace ConFutureNce.Controllers
         {
             if (ModelState.IsValid)
             {
+                _context.Paper.Find(review.PaperId).Status = Paper.ProcessStatus.Reviewed;
                 review.Date = DateTime.Now;
                 _context.Add(review);
                 await _context.SaveChangesAsync();

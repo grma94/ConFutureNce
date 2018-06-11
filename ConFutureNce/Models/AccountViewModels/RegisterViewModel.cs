@@ -31,5 +31,14 @@ namespace ConFutureNce.Models.AccountViewModels
         [Required]
         [Display(Name = "Surname")]
         public string Surname { get; set; }
+
+
+        [Display(Name = "Oranization's name")]
+        public string OrgName { get; set; }
+
+        [Display(Name = "Scientific title")]
+        public string ScTitle { get; set; }
+
+
     }
 }
