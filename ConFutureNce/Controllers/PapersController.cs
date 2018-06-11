@@ -138,6 +138,9 @@ namespace ConFutureNce.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
             if (currentUser.Users.Any(p => p.GetType().ToString() == "ConFutureNce.Models.Reviewer"))
             {
                 return View("DetailsReviewer", paper);
