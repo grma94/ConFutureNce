@@ -226,6 +226,9 @@ namespace ConFutureNce.Controllers
                 var cName = _context.Conference.First().Name;
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email, ConferenceName = cName, Name = model.Name, Surname = model.Surname };
                 var result = await _userManager.CreateAsync(user, model.Password);
+                var userType = new Author { OrgName = model.OrgName, ScTitle = model.ScTitle, ApplicationUserId = user.Id };
+                _context.Add(userType);
+                await _context.SaveChangesAsync();
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
