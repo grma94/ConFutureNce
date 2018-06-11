@@ -13,5 +13,8 @@
 }
 <div>
     <a asp-action="Index">Back to List</a> |
-    <a asp-controller="Reviews" asp-route-id="@Model.PaperId" asp-action="Create">Add review</a>
+    @if (Model.Review == null)
+        {
+            <a asp-controller="Reviews" asp-route-id="@Model.PaperId" asp-action="Create">Add review</a>
+        }
 </div>
