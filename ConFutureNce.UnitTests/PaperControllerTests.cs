@@ -369,7 +369,7 @@ namespace ConFutureNce.UnitTests
         [DataRow("Author", "Author", DisplayName = "Test for Author")]
         [DataRow("ProgrammeCommitteeMember", "ProgrammeCommitteeMember", DisplayName = "Test for ProgrammeCommitteeMember")]
         [DataRow("Reviewer", "Reviewer", DisplayName = "Test for Reviewer")]
-        [DataRow("Organizer", null, DisplayName = "Test for Organizer")]
+        [DataRow("Organizer", "AccessDenied", DisplayName = "Test for Organizer")]
         public void IndexRoutingToUserTypesView(string currentUserType, string resultViewName)
         {
             //------------Preparation
@@ -393,10 +393,15 @@ namespace ConFutureNce.UnitTests
             var controller = new PapersController(context, userManager){ ControllerContext = controllerContext };
 
             //------------Action
-            var result = controller.Index(null,null,null,null).Result as ViewResult;
+            var result = controller.Index(null, null, null, null).Result;
 
             //------------Assertion
-            Assert.AreEqual(resultViewName, result.ViewName);
+            if (currentUserType == "Organizer")
+            {
+                Assert.AreEqual(resultViewName, ((RedirectToActionResult)result).ActionName);
+                return;
+            }
+            Assert.AreEqual(resultViewName, ((ViewResult)result).ViewName);
         }
     }
 }
