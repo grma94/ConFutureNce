@@ -60,7 +60,7 @@
 
                             <input type="hidden" asp-for="@item.PaperId" />
                             <div class="form-group">
-                                <select asp-for="@item.Status" class="form-control" asp-items="@(new SelectList(ViewBag.listOfStatus, "LanguageId", "LanguageName"))"></select>
+                                <select asp-for="@item.Status" class="form-control" asp-items="@(new SelectList(ViewBag.listOfStatus, "StatusId", "StatusName"))"></select>
                                 <span asp-validation-for="@item.Status" class="text-danger"></span>
                             </div>
                         }

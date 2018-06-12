@@ -325,21 +325,23 @@ namespace ConFutureNce.Controllers
             model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
 
             // SelectList data preparation
-            var statusList = new List<Language>
+            
+
+            var statusList = new List<object>
             {
-                new Language
+                new 
                 {
-                    LanguageId = Convert.ToInt32(Paper.ProcessStatus.Qualified),
-                    LanguageName = "Qualified"
+                    StatusId = Convert.ToInt32(Paper.ProcessStatus.Qualified),
+                    StatusName = "Qualified"
                 },
-                new Language
+                new 
                 {
-                    LanguageId = Convert.ToInt32(Paper.ProcessStatus.Unqualified),
-                    LanguageName = "Unqualified"
+                    StatusId = Convert.ToInt32(Paper.ProcessStatus.Unqualified),
+                    StatusName = "Unqualified"
                 }
             };
 
-            statusList.Insert(0, new Language{LanguageId = -1, LanguageName = "Select"});
+            statusList.Insert(0, new { StatusId = -1, StatusName = "Select"});
             
             ViewBag.listOfStatus = statusList;
 
