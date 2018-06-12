@@ -48,7 +48,7 @@ namespace ConFutureNce.Controllers
             // Searching propertie
             ViewData["CurrentFilter"] = searchString;
 
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUserId = _userManager.GetUserId(HttpContext.User);
 
             var papers = _context.Paper
                 .Include(p => p.Author.ApplicationUser)
@@ -57,9 +57,9 @@ namespace ConFutureNce.Controllers
                 .Include(p => p.Payment);
 
 
-            currentUser = _context.ApplicationUser
+            var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
-                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+                .FirstOrDefault(ap => ap.Id == currentUserId);
 
             foreach (var userType in currentUser.Users)
             {
@@ -136,11 +136,11 @@ namespace ConFutureNce.Controllers
             {
                 return NotFound();
             }
-
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            currentUser = _context.ApplicationUser
+            
+            var currentUserId = _userManager.GetUserId(HttpContext.User);
+            var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
-                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+                .FirstOrDefault(ap => ap.Id == currentUserId);
             if (currentUser.Users.Any(p => p.GetType().ToString() == "ConFutureNce.Models.Reviewer"))
             {
                 return View("DetailsReviewer", paper);
@@ -167,11 +167,12 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PaperId,TitleENG,TitleORG,Authors,Abstract,OrgName,LanguageId,PaperKeywords")] ViewModels.PaperPaperKeyworsViewModel paperPaperKeyword, IFormFile file)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
+            
+            var userId = _userManager.GetUserId(HttpContext.User);
 
-            user = _context.ApplicationUser
+            var user = _context.ApplicationUser
                 .Include(ap => ap.Users)
-                .FirstOrDefault(ap => ap.Id == user.Id);
+                .FirstOrDefault(ap => ap.Id == userId);
             if (ModelState.IsValid & file != null)
             {
                 var paper = new Paper
