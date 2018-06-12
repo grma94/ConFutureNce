@@ -9,24 +9,30 @@ using Microsoft.EntityFrameworkCore;
 using ConFutureNce.Models;
 using ConFutureNce.Models.PaperViewModel;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace ConFutureNce.Controllers
 {
     public class PaymentsController : Controller
     {
         private readonly ConFutureNceContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PaymentsController(ConFutureNceContext context)
+
+        public PaymentsController(ConFutureNceContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        // GET: Payments
+        [Authorize]
         public async Task<IActionResult> Index(PaymentViewModel payment)
         {
             return View(payment);
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(IFormCollection form)
@@ -72,52 +78,42 @@ namespace ConFutureNce.Controllers
             
         }
         // GET: Payments
+        [Authorize]
         public async Task<IActionResult> PaymentError()
         {
             return View();
         }
 
         // GET: Payments/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
-                return NotFound();
+                return View("NotFound");
             }
 
             var payment = await _context.Payment
-                .Include(p => p.Paper)
+                .Include(p => p.Paper.AuthorId)
                 .SingleOrDefaultAsync(m => m.PaymentId == id);
             if (payment == null)
             {
-                return NotFound();
+                return View("NotFound");
             }
 
-            return View(payment);
-        }
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
 
-        // GET: Payments/Create
-        public IActionResult Create()
-        {
-            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId");
-            return View();
-        }
-
-        // POST: Payments/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaymentId,IsDone,PaperId")] Payment payment)
-        {
-            if (ModelState.IsValid)
+            foreach (var userType in currentUser.Users)
             {
-                _context.Add(payment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (payment.Paper.AuthorId == userType.UserTypeId)
+                {
+                    return View(payment);
+                }
             }
-            ViewData["PaperId"] = new SelectList(_context.Paper, "PaperId", "PaperId", payment.PaperId);
-            return View(payment);
+            return RedirectToAction("AccessDenied", "Account", null);
         }
 
         private bool PaymentExists(int id)

@@ -113,7 +113,7 @@ namespace ConFutureNce.Controllers
                 }
             }
 
-            return View(papers);
+            return RedirectToAction("Index");
         }
 
         // GET: Papers/Details/5
@@ -122,7 +122,7 @@ namespace ConFutureNce.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return View("NotFound");
             }
 
             var paper = await _context.Paper
@@ -134,29 +134,60 @@ namespace ConFutureNce.Controllers
                 .SingleOrDefaultAsync(m => m.PaperId == id);
             if (paper == null)
             {
-                return NotFound();
+                return View("NotFound");
             }
 
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
             currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUser.Id);
-            if (currentUser.Users.Any(p => p.GetType().ToString() == "ConFutureNce.Models.Reviewer"))
-            {
-                return View("DetailsReviewer", paper);
-            }
 
+            foreach (var userType in currentUser.Users)
+            {
+
+                switch (userType.GetType().ToString())
+                {
+                    case "ConFutureNce.Models.Reviewer":
+                        {
+                            if (paper.ReviewerId != userType.UserTypeId)
+                            {
+                                return RedirectToAction("AccessDenied", "Account", null);
+                            }
+                            return View("DetailsReviewer", paper);
+                        }
+                    case "ConFutureNce.Models.Author":
+                        {
+                            if (paper.AuthorId != userType.UserTypeId)
+                            {
+                                return RedirectToAction("AccessDenied", "Account", null);
+                            }
+                            return View(paper);
+                        }
+                }
+            }
             return View(paper);
         }
 
         // GET: Papers/Create
         [Authorize]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ICollection<Language> languageList = new List<Language>();
-            languageList = (from language in _context.Language select language).ToList();
-            ViewBag.ListofLanguages = languageList;
-            return View();
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            foreach (var userType in currentUser.Users)
+            {
+                if (userType.GetType().ToString() == "ConFutureNce.Models.Author")
+                {
+                    ICollection<Language> languageList = new List<Language>();
+                    languageList = (from language in _context.Language select language).ToList();
+                    ViewBag.ListofLanguages = languageList;
+                    return View();
+                }
+            }
+            return RedirectToAction("Index");
         }
 
         // POST: Papers/Create
@@ -172,65 +203,86 @@ namespace ConFutureNce.Controllers
             user = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == user.Id);
-            if (ModelState.IsValid & file != null)
+
+            foreach (var userType in user.Users)
             {
-                var paper = new Paper
+                if (userType.GetType().ToString() == "ConFutureNce.Models.Author")
                 {
-                    Abstract = paperPaperKeyword.Abstract,
-                    TitleENG = paperPaperKeyword.TitleENG,
-                    TitleORG = paperPaperKeyword.TitleORG,
-                    Authors = paperPaperKeyword.Authors,
-                    OrgName = paperPaperKeyword.OrgName,
-                    LanguageId = paperPaperKeyword.LanguageId
-                };
 
-                var userTypeId = user.Users.First().UserTypeId;
-                paper.AuthorId = userTypeId;
-                if (paperPaperKeyword.PaperKeywords != null)
-                {
-                    var paperKeywordsTableWithRepeats = paperPaperKeyword.PaperKeywords.Split(",");
-                    for (int i = 0; i < paperKeywordsTableWithRepeats.Length; i++)
+                    if (ModelState.IsValid & file != null)
                     {
-                        paperKeywordsTableWithRepeats[i] = paperKeywordsTableWithRepeats[i].Trim();
-                    }
-                    paperKeywordsTableWithRepeats = paperKeywordsTableWithRepeats.Where(x => !string.IsNullOrEmpty(x)).ToArray();
-                    var paperKeywordsTable = paperKeywordsTableWithRepeats.Distinct().ToArray();
-                    List<PaperKeyword> ppk = new List<PaperKeyword>();
-
-                    foreach (string keyword in paperKeywordsTable)
-                    {
-                        var paperKeywords = new PaperKeyword
+                        var paper = new Paper
                         {
-                            KeyWord = keyword,
-                            Paper = paper
+                            Abstract = paperPaperKeyword.Abstract,
+                            TitleENG = paperPaperKeyword.TitleENG,
+                            TitleORG = paperPaperKeyword.TitleORG,
+                            Authors = paperPaperKeyword.Authors,
+                            OrgName = paperPaperKeyword.OrgName,
+                            LanguageId = paperPaperKeyword.LanguageId
                         };
-                        ppk.Add(paperKeywords);
-                    }
-                    paper.PaperKeywords = ppk;
-                }
-                using (var memoryStream = new MemoryStream())
-                {
-                    await file.CopyToAsync(memoryStream);
-                    paper.PaperFile = memoryStream.ToArray();
-                }
-                paper.SubmissionDate = DateTime.Now;
-                paper.Status = 0;
-                _context.Add(paper);
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index", "Payments", new PaymentViewModel {UserName = user.Fullname,
-                                                                                    BillingAddress = user.Address,
-                                                                                    PaperId = paper.PaperId});
-            }
-            ICollection<Language> languageList = new List<Language>();
-            languageList = (from language in _context.Language select language).ToList();
-            ViewBag.ListofLanguages = languageList;
-            return View(paperPaperKeyword);
-        }
 
+                        var userTypeId = user.Users.First().UserTypeId;
+                        paper.AuthorId = userTypeId;
+                        if (paperPaperKeyword.PaperKeywords != null)
+                        {
+                            var paperKeywordsTableWithRepeats = paperPaperKeyword.PaperKeywords.Split(",");
+                            for (int i = 0; i < paperKeywordsTableWithRepeats.Length; i++)
+                            {
+                                paperKeywordsTableWithRepeats[i] = paperKeywordsTableWithRepeats[i].Trim();
+                            }
+                            paperKeywordsTableWithRepeats = paperKeywordsTableWithRepeats.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                            var paperKeywordsTable = paperKeywordsTableWithRepeats.Distinct().ToArray();
+                            List<PaperKeyword> ppk = new List<PaperKeyword>();
+
+                            foreach (string keyword in paperKeywordsTable)
+                            {
+                                var paperKeywords = new PaperKeyword
+                                {
+                                    KeyWord = keyword,
+                                    Paper = paper
+                                };
+                                ppk.Add(paperKeywords);
+                            }
+                            paper.PaperKeywords = ppk;
+                        }
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await file.CopyToAsync(memoryStream);
+                            paper.PaperFile = memoryStream.ToArray();
+                        }
+                        paper.SubmissionDate = DateTime.Now;
+                        paper.Status = 0;
+                        _context.Add(paper);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction("Index", "Payments", new PaymentViewModel
+                        {
+                            UserName = user.Fullname,
+                            BillingAddress = user.Address,
+                            PaperId = paper.PaperId
+                        });
+                    }
+                    ICollection<Language> languageList = new List<Language>();
+                    languageList = (from language in _context.Language select language).ToList();
+                    ViewBag.ListofLanguages = languageList;
+                    return View(paperPaperKeyword);
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
         [Authorize]
         public async Task<IActionResult> AssignReviewer()
         {
-            IEnumerable<Paper> model = _context.Paper
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            foreach (var userType in currentUser.Users)
+            {
+                if (userType.GetType().ToString() == "ConFutureNce.Models.ProgrammeCommitteeMember")
+                {
+                    IEnumerable<Paper> model = _context.Paper
                 .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.PaperKeywords)
                 .Include(p => p.Reviewer.ApplicationUser)
@@ -239,45 +291,48 @@ namespace ConFutureNce.Controllers
                 .Include(p => p.Language.ReviewersThird);
 
 
-            model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
+                    model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
 
-            // SelectList data preparation
-            var papersLanguage = model
-                .GroupBy(p => p.LanguageId)
-                .Select(p => p.First())
-                .Select(p => new
-                {
-                    langId = p.LanguageId,
-                    reviewerslist = p.Language.AllReviewers
-                })
-                .OrderBy(pl => pl.langId);
+                    // SelectList data preparation
+                    var papersLanguage = model
+                        .GroupBy(p => p.LanguageId)
+                        .Select(p => p.First())
+                        .Select(p => new
+                        {
+                            langId = p.LanguageId,
+                            reviewerslist = p.Language.AllReviewers
+                        })
+                        .OrderBy(pl => pl.langId);
 
-            var Vmodel = new List<AssignReviewerViewModel>();
-            var reviewers = _context.ApplicationUser;
-            foreach (var language in papersLanguage)
-            {
-               var tempList = language.reviewerslist
-                   .Select(r => new ReviewerVM
-                   {
-                        ReviewerId = r.UserTypeId,
-                        ReviewerName = reviewers.First(au => au.Id == r.ApplicationUserId).Fullname
-                    })
-                    .ToList();
-                tempList.Insert(0, new ReviewerVM
-                {
-                    ReviewerId = -1,
-                    ReviewerName = "SELECT REVIEWER"
-                });
-                Vmodel.Add(new AssignReviewerViewModel
-                {
-                    LangId = language.langId,
-                    reviewersPerLang = tempList
-                });
+                    var Vmodel = new List<AssignReviewerViewModel>();
+                    var reviewers = _context.ApplicationUser;
+                    foreach (var language in papersLanguage)
+                    {
+                        var tempList = language.reviewerslist
+                            .Select(r => new ReviewerVM
+                            {
+                                ReviewerId = r.UserTypeId,
+                                ReviewerName = reviewers.First(au => au.Id == r.ApplicationUserId).Fullname
+                            })
+                             .ToList();
+                        tempList.Insert(0, new ReviewerVM
+                        {
+                            ReviewerId = -1,
+                            ReviewerName = "SELECT REVIEWER"
+                        });
+                        Vmodel.Add(new AssignReviewerViewModel
+                        {
+                            LangId = language.langId,
+                            reviewersPerLang = tempList
+                        });
+                    }
+
+                    ViewBag.listOfReviewers = Vmodel;
+
+                    return View(model);
+                }
             }
-
-            ViewBag.listOfReviewers = Vmodel;
-
-            return View(model);
+            return RedirectToAction("AccessDenied", "Account", null);
         }
 
         // POST: PAPERS/ASSIGNREVIEWER
@@ -288,28 +343,39 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignReviewer(IFormCollection form)
         {
-            if (ModelState.IsValid)
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            foreach (var userType in currentUser.Users)
             {
-                var assignedReviewers = Request.Form["item.ReviewerId"];
-                var papersToAssign = Request.Form["item.PaperId"];
-
-                var papers = _context.Paper
-                    .Where(p => p.ReviewerId == null);
-
-                for (var i = 0; i < papersToAssign.Count; i++)
+                if (userType.GetType().ToString() == "ConFutureNce.Models.ProgrammeCommitteeMember")
                 {
-                    if (assignedReviewers[i] == "-1")
-                        continue;
+                    if (ModelState.IsValid)
+                    {
+                        var assignedReviewers = Request.Form["item.ReviewerId"];
+                        var papersToAssign = Request.Form["item.PaperId"];
 
-                    var paper = await _context.Paper
-                        .FirstAsync(p => p.PaperId == Convert.ToInt32(papersToAssign[i]));
+                        var papers = _context.Paper
+                            .Where(p => p.ReviewerId == null);
 
-                    paper.ReviewerId = Convert.ToInt32(assignedReviewers[i]);
-                    paper.Status = Paper.ProcessStatus.UnderReview;
+                        for (var i = 0; i < papersToAssign.Count; i++)
+                        {
+                            if (assignedReviewers[i] == "-1")
+                                continue;
+
+                            var paper = await _context.Paper
+                                .FirstAsync(p => p.PaperId == Convert.ToInt32(papersToAssign[i]));
+
+                            paper.ReviewerId = Convert.ToInt32(assignedReviewers[i]);
+                            paper.Status = Paper.ProcessStatus.UnderReview;
+                        }
+
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
                 }
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
             return View();
         }
@@ -317,33 +383,45 @@ namespace ConFutureNce.Controllers
         [Authorize]
         public async Task<IActionResult> ChoosePaper()
         {
-            IEnumerable<Paper> model = _context.Paper
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            foreach (var userType in currentUser.Users)
+            {
+                if (userType.GetType().ToString() == "ConFutureNce.Models.ProgrammeCommitteeMember")
+                {
+                    IEnumerable<Paper> model = _context.Paper
                 .Include(p => p.Author.ApplicationUser)
                 .Include(p => p.PaperKeywords)
                 .Include(p => p.Reviewer.ApplicationUser);
-                
-            model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
 
-            // SelectList data preparation
-            var statusList = new List<Language>
-            {
-                new Language
-                {
-                    LanguageId = Convert.ToInt32(Paper.ProcessStatus.Qualified),
-                    LanguageName = "Qualified"
-                },
-                new Language
-                {
-                    LanguageId = Convert.ToInt32(Paper.ProcessStatus.Unqualified),
-                    LanguageName = "Unqualified"
+                    model = model.OrderBy(p => (p.Reviewer != null ? p.Reviewer.ApplicationUser.Fullname : string.Empty));
+
+                    // SelectList data preparation
+                    var statusList = new List<Language>
+                    {
+                        new Language
+                        {
+                            LanguageId = Convert.ToInt32(Paper.ProcessStatus.Qualified),
+                            LanguageName = "Qualified"
+                        },
+                        new Language
+                        {
+                            LanguageId = Convert.ToInt32(Paper.ProcessStatus.Unqualified),
+                            LanguageName = "Unqualified"
+                        }
+                    };
+
+                    statusList.Insert(0, new Language { LanguageId = -1, LanguageName = "Select" });
+
+                    ViewBag.listOfStatus = statusList;
+
+                    return View(model);
                 }
-            };
-
-            statusList.Insert(0, new Language{LanguageId = -1, LanguageName = "Select"});
-            
-            ViewBag.listOfStatus = statusList;
-
-            return View(model);
+            }
+            return RedirectToAction("Index");
         }
 
         // POST: PAPERS/ASSIGNREVIEWER
@@ -354,29 +432,41 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChoosePaper(IFormCollection form)
         {
-            if (ModelState.IsValid)
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            foreach (var userType in currentUser.Users)
             {
-                var assignedStatuses = Request.Form["item.Status"];
-                var papersToAssign = Request.Form["item.PaperId"];
-
-                var papers = _context.Paper
-                    .Where(p => p.Status == Paper.ProcessStatus.Reviewed);
-
-                for (var i = 0; i < papersToAssign.Count; i++)
+                if (userType.GetType().ToString() == "ConFutureNce.Models.ProgrammeCommitteeMember")
                 {
-                    if (assignedStatuses[i] == "-1")
-                        continue;
+                    if (ModelState.IsValid)
+                    {
+                        var assignedStatuses = Request.Form["item.Status"];
+                        var papersToAssign = Request.Form["item.PaperId"];
 
-                    var paper = await _context.Paper
-                        .FirstAsync(p => p.PaperId == Convert.ToInt32(papersToAssign[i]));
+                        var papers = _context.Paper
+                            .Where(p => p.Status == Paper.ProcessStatus.Reviewed);
 
-                    paper.Status = (Paper.ProcessStatus)Convert.ToInt32(assignedStatuses[i]);
+                        for (var i = 0; i < papersToAssign.Count; i++)
+                        {
+                            if (assignedStatuses[i] == "-1")
+                                continue;
+
+                            var paper = await _context.Paper
+                                .FirstAsync(p => p.PaperId == Convert.ToInt32(papersToAssign[i]));
+
+                            paper.Status = (Paper.ProcessStatus)Convert.ToInt32(assignedStatuses[i]);
+                        }
+
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
+                    return View();
                 }
-
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
-            return View();
+            return RedirectToAction("Index");
         }
 
         private bool PaperExists(int id)
