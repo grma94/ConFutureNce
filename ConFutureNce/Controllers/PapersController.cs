@@ -172,10 +172,10 @@ namespace ConFutureNce.Controllers
         [Authorize]
         public async Task<IActionResult> Create()
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            currentUser = _context.ApplicationUser
+            var currentUserId =  _userManager.GetUserId(HttpContext.User);
+            var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
-                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+                .FirstOrDefault(ap => ap.Id == currentUserId);
 
 
             foreach (var userType in currentUser.Users)
@@ -281,10 +281,10 @@ namespace ConFutureNce.Controllers
         [Authorize]
         public async Task<IActionResult> AssignReviewer()
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            currentUser = _context.ApplicationUser
+            var currentUserId = _userManager.GetUserId(HttpContext.User);
+            var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
-                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+                .FirstOrDefault(ap => ap.Id == currentUserId);
 
             foreach (var userType in currentUser.Users)
             {
@@ -351,10 +351,10 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignReviewer(IFormCollection form)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            currentUser = _context.ApplicationUser
+            var currentUserId = _userManager.GetUserId(HttpContext.User);
+            var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
-                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+                .FirstOrDefault(ap => ap.Id == currentUserId);
 
             foreach (var userType in currentUser.Users)
             {
@@ -391,10 +391,10 @@ namespace ConFutureNce.Controllers
         [Authorize]
         public async Task<IActionResult> ChoosePaper()
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            currentUser = _context.ApplicationUser
+            var currentUserId =  _userManager.GetUserId(HttpContext.User);
+            var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
-                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+                .FirstOrDefault(ap => ap.Id == currentUserId);
 
             foreach (var userType in currentUser.Users)
             {
@@ -442,10 +442,10 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChoosePaper(IFormCollection form)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-            currentUser = _context.ApplicationUser
+            var currentUserId = _userManager.GetUserId(HttpContext.User);
+            var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
-                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+                .FirstOrDefault(ap => ap.Id == currentUserId);
 
             foreach (var userType in currentUser.Users)
             {
