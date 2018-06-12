@@ -177,10 +177,17 @@ namespace ConFutureNce.Controllers
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUser.Id);
 
+
             foreach (var userType in currentUser.Users)
             {
                 if (userType.GetType().ToString() == "ConFutureNce.Models.Author")
                 {
+                    var paperCount = _context.Paper
+                        .Count(p => p.AuthorId == currentUser.Users
+                                        .First(u => u.GetType() == typeof(Author))
+                                        .UserTypeId);
+                    if (paperCount >= 10)
+                        break;
                     ICollection<Language> languageList = new List<Language>();
                     languageList = (from language in _context.Language select language).ToList();
                     ViewBag.ListofLanguages = languageList;
