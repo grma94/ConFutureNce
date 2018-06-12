@@ -21,6 +21,7 @@ namespace ConFutureNce.Controllers
             _context = context;
             _userManager = userManager;
         }
+
         [Authorize]
         // GET: Reviews
         public async Task<IActionResult> Index()
@@ -64,32 +65,62 @@ namespace ConFutureNce.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return View("NotFound");
             }
 
             var review = await _context.Review
                 .Include(r => r.Paper)
                 .SingleOrDefaultAsync(m => m.ReviewId == id);
+
             if (review == null)
             {
-                return NotFound();
+                return View("NotFound");
             }
 
-            return View(review);
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            foreach (var userType in currentUser.Users)
+            {
+                if (userType.UserTypeId == review.Paper.ReviewerId)
+                {
+                    return View(review);
+                }
+            }
+            return View("AccessDenied");
         }
 
         [Authorize]
         // GET: Reviews/Create
-        public IActionResult Create(int id)
+        public async Task<IActionResult> Create(int? id)
         {
-            var test = _context.Review.First(r=>r.PaperId==id);
-            if (_context.Review.First(r => r.PaperId == id) == null)
-            { 
-            var review = new Review
+            if (id == null)
             {
-                PaperId = id
-            };
-            return View(review);
+                return View("NotFound");
+            }
+
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            var reviewerId = _context.Paper.Find(id).ReviewerId;
+
+            foreach (var userType in currentUser.Users)
+            {
+                if (userType.UserTypeId == reviewerId)
+                {
+                    if (_context.Review.FirstOrDefault(r => r.PaperId == id) == null)
+                    {
+                        var review = new Review
+                        {
+                            PaperId = (int)id
+                        };
+                        return View(review);
+                    }
+                }
             }
             return RedirectToAction("Details", "Papers", new { id });
         }
@@ -102,15 +133,29 @@ namespace ConFutureNce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ReviewId,Problems,WhyProblems,Solution,Achievements,NotMentioned,Grade,GeneralComments,PaperId")] Review review)
         {
-            if (ModelState.IsValid)
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUser.Id);
+
+            var reviewerId = _context.Paper.Find(review.PaperId).ReviewerId;
+
+            foreach (var userType in currentUser.Users)
             {
-                _context.Paper.Find(review.PaperId).Status = Paper.ProcessStatus.Reviewed;
-                review.Date = DateTime.Now;
-                _context.Add(review);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (userType.UserTypeId == reviewerId)
+                {
+                    if (ModelState.IsValid)
+                    {
+                        _context.Paper.Find(review.PaperId).Status = Paper.ProcessStatus.Reviewed;
+                        review.Date = DateTime.Now;
+                        _context.Add(review);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
+                    return View(review);
+                }
             }
-            return View(review);
+            return View("AccessDenied");
         }
     }
 }
