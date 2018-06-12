@@ -113,7 +113,7 @@ namespace ConFutureNce.Controllers
                 }
             }
 
-            return View(papers);
+            return RedirectToAction("AccessDenied", "Account", null);
         }
 
         // GET: Papers/Details/5
