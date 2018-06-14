@@ -106,8 +106,15 @@ namespace ConFutureNce.Controllers
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUser.Id);
 
+            if (_context.Paper.Find(id) == null)
+            {
+                return View("NotFound");
+            }
             var reviewerId = _context.Paper.Find(id).ReviewerId;
+            if (reviewerId == null)
+            {
 
+            }
             foreach (var userType in currentUser.Users)
             {
                 if (userType.UserTypeId == reviewerId)
