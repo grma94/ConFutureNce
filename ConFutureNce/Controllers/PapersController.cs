@@ -60,6 +60,7 @@ namespace ConFutureNce.Controllers
             var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUserId);
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
 
             foreach (var userType in currentUser.Users)
             {
@@ -141,7 +142,7 @@ namespace ConFutureNce.Controllers
             var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUserId);
-
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
             foreach (var userType in currentUser.Users)
             {
 
@@ -176,7 +177,7 @@ namespace ConFutureNce.Controllers
             var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUserId);
-
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
 
             foreach (var userType in currentUser.Users)
             {
@@ -285,7 +286,7 @@ namespace ConFutureNce.Controllers
             var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUserId);
-
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
             foreach (var userType in currentUser.Users)
             {
                 if (userType.GetType().ToString() == "ConFutureNce.Models.ProgrammeCommitteeMember")
@@ -395,7 +396,7 @@ namespace ConFutureNce.Controllers
             var currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUserId);
-
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
             foreach (var userType in currentUser.Users)
             {
                 if (userType.GetType().ToString() == "ConFutureNce.Models.ProgrammeCommitteeMember")

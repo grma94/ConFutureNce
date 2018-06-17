@@ -5,13 +5,29 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ConFutureNce.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConFutureNce.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ConFutureNceContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public HomeController(ConFutureNceContext context, UserManager<ApplicationUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
         public IActionResult Index()
         {
+            var currentUserId = _userManager.GetUserId(HttpContext.User);
+            var currentUser = _context.ApplicationUser
+                .Include(ap => ap.Users)
+                .FirstOrDefault(ap => ap.Id == currentUserId);
+
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
             return View();
         }
 

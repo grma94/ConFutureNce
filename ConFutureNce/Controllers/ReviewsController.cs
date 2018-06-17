@@ -35,7 +35,7 @@ namespace ConFutureNce.Controllers
 
             var reviews = _context.Review
                 .Include(p => p.Paper);
-
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
             foreach (var userType in currentUser.Users)
             {
                 switch (userType.GetType().ToString())
@@ -81,7 +81,7 @@ namespace ConFutureNce.Controllers
             currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUser.Id);
-
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
             foreach (var userType in currentUser.Users)
             {
                 if (userType.UserTypeId == review.Paper.ReviewerId)
@@ -105,7 +105,7 @@ namespace ConFutureNce.Controllers
             currentUser = _context.ApplicationUser
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUser.Id);
-
+            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
             if (_context.Paper.Find(id) == null)
             {
                 return View("NotFound");
