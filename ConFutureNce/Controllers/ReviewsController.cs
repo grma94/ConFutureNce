@@ -88,6 +88,10 @@ namespace ConFutureNce.Controllers
                 {
                     return View(review);
                 }
+                if (userType.GetType().ToString() == "ConFutureNce.Models.ProgrammeCommitteeMember")
+                {
+                    return View(review);
+                }
             }
             return View("AccessDenied");
         }
