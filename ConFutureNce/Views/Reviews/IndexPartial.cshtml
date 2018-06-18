@@ -66,7 +66,9 @@
                     @Html.DisplayFor(modelItem => item.Date)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Paper.PaperId)
+                    <a href="@Url.Action("Details", "Papers", new { id = item.PaperId })">
+                        @Html.DisplayFor(modelItem => item.Paper.TitleORG)
+                    </a>
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.ReviewId">Details</a>
