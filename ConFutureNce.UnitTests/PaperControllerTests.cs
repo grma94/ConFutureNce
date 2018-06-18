@@ -7,6 +7,7 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using ConFutureNce.Controllers;
 using ConFutureNce.Models;
+using ConFutureNce.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -132,8 +133,18 @@ namespace ConFutureNce.UnitTests
                 },
                 new ApplicationUser
                 {
+                    Name="Author2",Email="lala12@gmail.com", Address="Plac Grunwaldzki 23, Wroc³aw, Polska", ConferenceName="Great Conference",
+                    EmailConfirmed =true,  UserName="lala12@gmail.com"
+                },
+                new ApplicationUser
+                {
                     Name="Reviewer",Email="lala2@gmail.com", Address="Koœciuszki 28, Wroc³aw, Polska", ConferenceName="Great Conference",
                     EmailConfirmed =true,  UserName="lala2@gmail.com"
+                },
+                new ApplicationUser
+                {
+                    Name="Reviewer2",Email="lala22@gmail.com", Address="Koœciuszki 28, Wroc³aw, Polska", ConferenceName="Great Conference",
+                    EmailConfirmed =true,  UserName="lala22@gmail.com"
                 },
                 new ApplicationUser
                 {
@@ -189,6 +200,12 @@ namespace ConFutureNce.UnitTests
                     ApplicationUserId = context.ApplicationUser.First(ap => ap.Name == "Author").Id,
                     ScTitle="MSc",
                     OrgName="Wroc³aw University of Science and Technology"
+                },
+                new Author
+                {
+                    ApplicationUserId = context.ApplicationUser.First(ap => ap.Name == "Author2").Id,
+                    ScTitle="MSc",
+                    OrgName="Wroc³aw University of Science and Technology"
                 }
             };
             foreach (Author a in authors)
@@ -202,6 +219,14 @@ namespace ConFutureNce.UnitTests
                 new Reviewer
                 {
                     ApplicationUserId = context.ApplicationUser.First(ap => ap.Name == "Reviewer").Id,
+                    ScTitle ="Ph.D.",
+                    OrgName ="Wroc³aw University of Science and Technology",
+                    Language1Id =47,
+                    Language2Id =15
+                },
+                new Reviewer
+                {
+                    ApplicationUserId = context.ApplicationUser.First(ap => ap.Name == "Reviewer2").Id,
                     ScTitle ="Ph.D.",
                     OrgName ="Wroc³aw University of Science and Technology",
                     Language1Id =47,
@@ -403,5 +428,134 @@ namespace ConFutureNce.UnitTests
             }
             Assert.AreEqual(resultViewName, ((ViewResult)result).ViewName);
         }
+
+        [DataTestMethod]
+        [DataRow("Author", "NotFound", null, DisplayName = "Test for no id")]
+        [DataRow("Author", "NotFound", 99, DisplayName = "Test for invalid id")]
+        [DataRow("Author", null, 1, DisplayName = "Test for correct Author's id")]
+        [DataRow("Reviewer", "DetailsReviewer", 1, DisplayName = "Test for correct Reviewer's id")]
+        [DataRow("Author2", "AccessDenied", 1, DisplayName = "Test for incorrect Author's id ")]
+        [DataRow("Reviewer2", "AccessDenied", 1, DisplayName = "Test for incorrect Reviewer's id ")]
+        public void DatailRouting(string currentUserType, string resultViewName, int? id)
+        {
+            //------------Preparation
+
+            // HttpContext mockup -> ApplictionUser with Name = "Author"
+            // assigned as current user in HttpContext
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier,
+                    // You can assign current user to ApplicationUser.id, which is refering to dessired UserType
+                    context.ApplicationUser.First(ap => ap.Name == currentUserType).Id)
+
+            };
+            var identity = new ClaimsIdentity(claims, "Test");
+            var claimsPrinicipal = new ClaimsPrincipal(identity);
+            var httpContextMock = new Mock<HttpContext>();
+            httpContextMock.Setup(hc => hc.User).Returns(claimsPrinicipal);
+
+            // Transfer HttpContext to new PaperController
+            var controllerContext = new ControllerContext() { HttpContext = httpContextMock.Object };
+            var controller = new PapersController(context, userManager) { ControllerContext = controllerContext };
+
+            //------------Action
+            var result = controller.Details(id).Result;
+
+            //------------Assertion
+            if (currentUserType == "Author2" || currentUserType == "Reviewer2")
+            {
+                Assert.AreEqual(resultViewName, ((RedirectToActionResult)result).ActionName);
+                return;
+            }
+            Assert.AreEqual(resultViewName, ((ViewResult)result).ViewName);
+        }
+
+        [DataTestMethod]
+        [DataRow("Author", null, DisplayName = "Test for correct userType - Author")]
+        [DataRow("Reviewer", "Index", DisplayName = "Test for incorrect userType - Reviewer")]
+        public void CreateGetRouting(string currentUserType, string resultViewName)
+        {
+            //------------Preparation
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier,
+                    // You can assign current user to ApplicationUser.id, which is refering to dessired UserType
+                    context.ApplicationUser.First(ap => ap.Name == currentUserType).Id)
+
+            };
+            var identity = new ClaimsIdentity(claims, "Test");
+            var claimsPrinicipal = new ClaimsPrincipal(identity);
+            var httpContextMock = new Mock<HttpContext>();
+            httpContextMock.Setup(hc => hc.User).Returns(claimsPrinicipal);
+
+            // Transfer HttpContext to new PaperController
+            var controllerContext = new ControllerContext() { HttpContext = httpContextMock.Object };
+            var controller = new PapersController(context, userManager) { ControllerContext = controllerContext };
+
+            //------------Action
+            var result = controller.Create().Result;
+
+            //------------Assertion
+            if (currentUserType == "Reviewer")
+            {
+                Assert.AreEqual(resultViewName, ((RedirectToActionResult)result).ActionName);
+                return;
+            }
+            Assert.AreEqual(resultViewName, ((ViewResult)result).ViewName);
+        }
+
+        [DataTestMethod]
+        [DataRow("Author", null, null, false, DisplayName = "Test for incorect model - no paper file")]
+        [DataRow("Author", "Index", "Payments", true, DisplayName = "Test for correct path")]
+        [DataRow("Reviewer", "Index", null, false, DisplayName = "Test for incorect userType - Reviewer")]
+        public void CreatePostRouting(string currentUserType, string resultViewName, string resultControllerName, bool fileExist)
+        {
+            //------------Preparation
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier,
+                    // You can assign current user to ApplicationUser.id, which is refering to dessired UserType
+                    context.ApplicationUser.First(ap => ap.Name == currentUserType).Id)
+
+            };
+            var identity = new ClaimsIdentity(claims, "Test");
+            var claimsPrinicipal = new ClaimsPrincipal(identity);
+            var httpContextMock = new Mock<HttpContext>();
+            httpContextMock.Setup(hc => hc.User).Returns(claimsPrinicipal);
+            var paperFileMock = new Mock<IFormFile>();
+            var paperMock = new PaperPaperKeyworsViewModel
+            {
+                Abstract = "test",
+                Authors = "test",
+                LanguageId = 47,
+                OrgName = "test",
+                PaperKeywords = "test",
+                TitleENG = "test",
+                TitleORG = "test"
+
+            };
+            
+            // Transfer HttpContext to new PaperController
+            var controllerContext = new ControllerContext() { HttpContext = httpContextMock.Object };
+            var controller = new PapersController(context, userManager) { ControllerContext = controllerContext };
+
+            //------------Action
+            var result = controller.Create(
+                paperMock,
+                fileExist ? paperFileMock.Object : null)
+                .Result;
+
+            //------------Assertion
+            if (currentUserType != "Author" || fileExist)
+            {
+                Assert.AreEqual(resultControllerName, ((RedirectToActionResult)result).ControllerName);
+                Assert.AreEqual(resultViewName, ((RedirectToActionResult)result).ActionName);
+                return;
+            }
+            Assert.AreEqual(resultViewName, ((ViewResult)result).ViewName);
+        }
+
     }
 }
