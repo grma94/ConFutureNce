@@ -31,10 +31,12 @@ namespace ConFutureNce.Models.AccountViewModels
         [Required]
         [Display(Name = "Surname")]
         public string Surname { get; set; }
-
+        [Required]
+        [StringLength(100)]
         [Display(Name = "Oranization's name")]
         public string OrgName { get; set; }
-
+        [Required]
+        [StringLength(10)]
         [Display(Name = "Scientific title")]
         public string ScTitle { get; set; }
 

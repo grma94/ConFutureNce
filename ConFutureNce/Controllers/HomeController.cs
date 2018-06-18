@@ -27,7 +27,7 @@ namespace ConFutureNce.Controllers
                 .Include(ap => ap.Users)
                 .FirstOrDefault(ap => ap.Id == currentUserId);
 
-            ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
+            if(currentUser!=null)ViewData["UserString"] = currentUser.Users.FirstOrDefault().GetType().ToString();
             return View();
         }
 
